@@ -1,0 +1,64 @@
+graph_partitioning/
+│
+├── data/                          # Директория для тестовых данных
+│   ├── generators/               # Генераторы графов
+│   │   ├── __init__.py
+│   │   ├── base_generator.py    # Абстрактный базовый класс
+│   │   ├── cluster_generator.py # Генератор с кластерной структурой
+│   │   └── barabasi_albert.py   # Генератор Барабаши-Альберт
+│   │
+│   ├── formats/                  # Форматы данных
+│   │   ├── __init__.py
+│   │   └── graph_io.py          # Чтение/запись графов в .txt
+│   │
+│   └── test_cases/              # Сгенерированные тестовые файлы
+│
+├── algorithms/                   # Алгоритмы разбиения
+│   ├── __init__.py
+│   ├── base_partitioner.py      # Абстрактный класс для partitioner'ов
+│   ├── kernighan_lin.py         # Базовый KL алгоритм
+│   │
+│   └── multilevel/              # Многоуровневый алгоритм
+│       ├── __init__.py
+│       ├── coarsener.py         # Этап стягивания (coarsening)
+│       ├── initial_partitioner.py # Начальное разбиение на грубом графе
+│       ├── uncoarsener.py       # Этап проекции и улучшения
+│       └── multilevel_partitioner.py # Главный класс
+│
+├── visualization/                # Визуализация
+│   ├── __init__.py
+│   ├── graph_visualizer.py      # Визуализация графов (для малых примеров)
+│   ├── metrics_plotter.py       # Графики метрик и сравнений
+│   └── stage_visualizer.py      # Визуализация этапов стягивания
+│
+├── metrics/                      # Метрики и статистика
+│   ├── __init__.py
+│   ├── partition_metrics.py     # Число разрезов, баланс и т.д.
+│   ├── performance_tracker.py   # Время работы, память
+│   └── comparison.py            # Сравнение алгоритмов
+│
+├── core/                         # Общие структуры данных
+│   ├── __init__.py
+│   ├── graph.py                 # Класс графа с удобным API
+│   ├── partition.py             # Класс разбиения
+│   └── coarse_graph.py          # Специальный класс для грубых графов
+│
+├── config/                       # Конфигурации
+│   ├── __init__.py
+│   └── settings.py              # Параметры по умолчанию
+│
+├── tests/                        # Модульные тесты
+│   ├── __init__.py
+│   ├── test_generators.py
+│   ├── test_kl.py
+│   └── test_multilevel.py
+│
+├── experiments/                  # Скрипты для экспериментов
+│   ├── __init__.py
+│   ├── run_comparison.py       # Сравнение алгоритмов
+│   ├── scalability_test.py     # Тесты масштабируемости
+│   └── generate_report.py      # Генерация отчётов
+│
+├── main.py                       # Главный скрипт с CLI интерфейсом
+├── requirements.txt              # Зависимости
+└── README.md                     # Документация

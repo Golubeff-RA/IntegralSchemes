@@ -104,11 +104,10 @@ class GraphPartitioningGUI:
         main_paned.pack(fill=tk.BOTH, expand=True, padx=5, pady=5)
         
         # Левая панель
-        left_frame = ttk.Frame(main_paned)
-        main_paned.add(left_frame, weight=1)
-        
+        self._crete_scrollable_frame(main_paned)
+
         # Панель управления
-        self.controls = ControlsPanel(left_frame, self._on_load_graph, self._on_run_algorithm)
+        self.controls = ControlsPanel(self.scrollable_frame, self._on_load_graph, self._on_run_algorithm)
         self.controls.pack(fill=tk.X, padx=5, pady=5)
         
         # Привязываем дополнительные обработчики
@@ -117,7 +116,7 @@ class GraphPartitioningGUI:
         self.controls.on_show_coarsening = self._on_show_coarsening
         
         # Панель метрик
-        self.metrics = MetricsPanel(left_frame)
+        self.metrics = MetricsPanel(self.scrollable_frame)
         self.metrics.pack(fill=tk.BOTH, expand=True, padx=5, pady=5)
         
         # Правая панель
@@ -131,7 +130,39 @@ class GraphPartitioningGUI:
         # Привязываем обработчики канваса
         self.canvas.on_node_selected = self._on_node_selected
         self.canvas.on_node_right_click = self._on_node_right_click
-    
+
+    def _crete_scrollable_frame(self, main_paned):
+        # Создаем контейнер для канваса и скроллбара
+        left_container = ttk.Frame(main_paned)
+        main_paned.add(left_container, weight=1)
+
+        # Создаем холст и вертикальный скроллбар
+        self.sidebar_canvas = tk.Canvas(left_container, bg="#1e1e1e", highlightthickness=0)
+        scrollbar = ttk.Scrollbar(left_container, orient="vertical", command=self.sidebar_canvas.yview)
+
+        # Фрейм внутри холста, в котором будут все виджеты
+        self.scrollable_frame = ttk.Frame(self.sidebar_canvas)
+
+        # Привязываем изменение размера фрейма к области прокрутки канваса
+        self.scrollable_frame.bind(
+            "<Configure>",
+            lambda e: self.sidebar_canvas.configure(scrollregion=self.sidebar_canvas.bbox("all"))
+        )
+
+        # Создаем окно внутри канваса для размещения фрейма
+        canvas_frame_window = self.sidebar_canvas.create_window((0, 0), window=self.scrollable_frame, anchor="nw")
+
+        # Чтобы фрейм растягивался по ширине канваса
+        def _on_canvas_configure(event):
+            self.sidebar_canvas.itemconfig(canvas_frame_window, width=event.width)
+
+        self.sidebar_canvas.bind('<Configure>', _on_canvas_configure)
+        self.sidebar_canvas.configure(yscrollcommand=scrollbar.set)
+
+        # Пакуем канвас и скроллбар
+        self.sidebar_canvas.pack(side="left", fill="both", expand=True)
+        scrollbar.pack(side="right", fill="y")
+
     def _bind_events(self):
         """Привязка глобальных событий"""
         self.root.protocol("WM_DELETE_WINDOW", self._on_close)

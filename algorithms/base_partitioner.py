@@ -1,11 +1,18 @@
 """
-Абстрактный базовый класс для всех алгоритмов разбиения графов
+Базовый класс для всех алгоритмов разбиения графов
+
+Поддерживает:
+- Замер времени выполнения
+- Отслеживание использования памяти
+- Сбор метрик производительности
 """
 
+import time
+import tracemalloc
 from abc import ABC, abstractmethod
 from typing import Optional, Dict, Any, Tuple
-import time
-import numpy as np
+from dataclasses import dataclass, field
+from contextlib import contextmanager
 
 import sys
 from pathlib import Path
@@ -15,104 +22,200 @@ from core.graph import Graph
 from core.partition import Partition
 
 
+@dataclass
+class PerformanceMetrics:
+    """Метрики производительности алгоритма"""
+    
+    # Время (в секундах)
+    time_seconds: float = 0.0
+    
+    # Память (в МБ)
+    memory_mb: float = 0.0
+    
+    # Дополнительные метрики (зависят от алгоритма)
+    extra: Dict[str, Any] = field(default_factory=dict)
+    
+    # Качество разбиения (заполняется после выполнения)
+    cut_weight: int = 0
+    balance: float = 0.0
+    
+    def __str__(self) -> str:
+        s = f"⏱️  Time: {self.time_seconds:.4f}s | 💾 Memory: {self.memory_mb:.2f}MB"
+        if self.cut_weight:
+            s += f" | ✂️  Cut: {self.cut_weight}"
+        if self.balance:
+            s += f" | ⚖️  Balance: {self.balance:.4f}"
+        return s
+    
+    def to_dict(self) -> Dict[str, Any]:
+        """Преобразование в словарь"""
+        return {
+            'time_seconds': self.time_seconds,
+            'memory_mb': self.memory_mb,
+            'cut_weight': self.cut_weight,
+            'balance': self.balance,
+            **self.extra
+        }
+
+
 class BasePartitioner(ABC):
     """
-    Абстрактный класс для алгоритмов разбиения
+    Базовый класс для всех алгоритмов разбиения
     
-    Все алгоритмы разбиения должны наследовать этот класс и реализовать метод partition()
+    Пример использования:
+    
+        class MyPartitioner(BasePartitioner):
+            def _partition_impl(self, graph, num_parts, balance_ratio):
+                # реализация алгоритма
+                return partition
+        
+        partitioner = MyPartitioner()
+        partition, metrics = partitioner.partition(graph)
     """
     
     def __init__(self, name: str = "BasePartitioner"):
         """
-        Инициализация алгоритма разбиения
-        
         Args:
             name: имя алгоритма (для логирования)
         """
         self.name = name
-        self._statistics = {
-            'partition_time': 0,
-            'initial_cut': 0,
-            'final_cut': 0,
-            'iterations': 0,
-            'memory_usage_mb': 0
-        }
+        self._last_metrics: Optional[PerformanceMetrics] = None
     
     @abstractmethod
-    def partition(self, graph: Graph, num_parts: int = 2, 
-                  balance_ratio: float = 0.5) -> Partition:
+    def _partition_impl(self, graph: Graph, balance_ratio: float = 0.5) -> Partition:
         """
-        Разбиение графа на части
+        Реализация алгоритма разбиения (должна быть переопределена)
         
         Args:
-            graph: граф для разбиения
-            num_parts: количество частей
-            balance_ratio: допустимый дисбаланс (0.5 = строго равные части)
+            graph: граф для разбиения (уже должен быть подготовлен)
+            balance_ratio: целевая доля вершин в одной части (0.5 = равные части)
         
         Returns:
-            Partition: объект разбиения
+            Partition: разбиение графа на 2 части
         """
         pass
     
-    def partition_with_stats(self, graph: Graph, num_parts: int = 2,
-                            balance_ratio: float = 0.5) -> Tuple[Partition, Dict[str, Any]]:
+    def partition(self, graph: Graph, balance_ratio: float = 0.5) -> Tuple[Partition, PerformanceMetrics]:
         """
-        Разбиение графа со сбором статистики
+        Выполнить разбиение графа с замером производительности
         
         Args:
             graph: граф для разбиения
-            num_parts: количество частей
-            balance_ratio: допустимый дисбаланс
+            balance_ratio: целевая доля вершин в одной части
         
         Returns:
-            Tuple[Partition, Dict]: (разбиение, статистика)
+            Tuple[Partition, PerformanceMetrics]: (разбиение, метрики)
         """
-        import psutil
-        import os
+        # Запускаем отслеживание памяти
+        tracemalloc.start()
         
-        # Замеряем память до
-        process = psutil.Process(os.getpid())
-        mem_before = process.memory_info().rss / 1024 / 1024
+        # Замер времени
+        start_time = time.perf_counter()
         
-        start_time = time.time()
+        try:
+            # Выполняем алгоритм
+            partition = self._partition_impl(graph, balance_ratio)
+            
+            # Убеждаемся, что все вершины назначены
+            if not partition.is_complete():
+                partition.fix_unassigned(graph)
+            
+        finally:
+            # Замер времени
+            end_time = time.perf_counter()
+            
+            # Замер памяти
+            current, peak = tracemalloc.get_traced_memory()
+            tracemalloc.stop()
         
-        partition = self.partition(graph, num_parts, balance_ratio)
+        # Собираем метрики
+        metrics = PerformanceMetrics(
+            time_seconds=end_time - start_time,
+            memory_mb=peak / 1024 / 1024,
+            cut_weight=partition.cut_weight(graph),
+            balance=partition.balance_quality()
+        )
         
-        end_time = time.time()
-        mem_after = process.memory_info().rss / 1024 / 1024
-        
-        # Собираем статистику
-        self._statistics['partition_time'] = end_time - start_time
-        self._statistics['memory_usage_mb'] = mem_after - mem_before
-        self._statistics['final_cut'] = partition.cut_edges(graph)
-        
-        # Дополнительная статистика
-        stats = {
-            **self._statistics,
-            'num_vertices': graph.num_vertices,
-            'num_edges': graph.num_edges,
-            'num_parts': num_parts,
-            'balance_ratio': balance_ratio,
-            'actual_balance': partition.balance_quality(),
-            'is_balanced': partition.is_balanced(balance_ratio),
-            'part_sizes': partition.part_sizes.tolist()
-        }
-        
-        return partition, stats
+        self._last_metrics = metrics
+        return partition, metrics
     
-    def get_statistics(self) -> Dict[str, Any]:
-        """Получение статистики последнего запуска"""
-        return self._statistics.copy()
+    def get_last_metrics(self) -> Optional[PerformanceMetrics]:
+        """Получить метрики последнего выполнения"""
+        return self._last_metrics
     
-    def reset_statistics(self):
-        """Сброс статистики"""
-        self._statistics = {
-            'partition_time': 0,
-            'initial_cut': 0,
-            'final_cut': 0,
-            'iterations': 0,
-            'memory_usage_mb': 0
-        }
+    def print_metrics(self) -> None:
+        """Вывести метрики последнего выполнения"""
+        if self._last_metrics:
+            print(f"\n📊 [{self.name}] {self._last_metrics}")
+        else:
+            print(f"No metrics available for {self.name}")
+    
+    @contextmanager
+    def measure(self):
+        """Контекстный менеджер для замера производительности (без разбиения)"""
+        tracemalloc.start()
+        start_time = time.perf_counter()
+        
+        yield
+        
+        end_time = time.perf_counter()
+        current, peak = tracemalloc.get_traced_memory()
+        tracemalloc.stop()
+        
+        return PerformanceMetrics(
+            time_seconds=end_time - start_time,
+            memory_mb=peak / 1024 / 1024
+        )
     
     def __repr__(self) -> str:
         return f"{self.name}()"
+
+
+class PartitionerWithStats(BasePartitioner):
+    """
+    Расширенный базовый класс с дополнительной статистикой
+    
+    Добавляет:
+    - Количество итераций
+    - Время по этапам
+    - Историю улучшений
+    """
+    
+    def __init__(self, name: str = "PartitionerWithStats"):
+        super().__init__(name)
+        self._iterations: int = 0
+        self._stage_times: Dict[str, float] = {}
+        self._improvement_history: list = []
+    
+    def _reset_stats(self) -> None:
+        """Сброс статистики"""
+        self._iterations = 0
+        self._stage_times = {}
+        self._improvement_history = []
+    
+    def _record_iteration(self, cut_weight: int) -> None:
+        """Запись итерации"""
+        self._iterations += 1
+        self._improvement_history.append(cut_weight)
+    
+    @contextmanager
+    def _stage(self, name: str):
+        """Контекстный менеджер для замера этапа"""
+        start = time.perf_counter()
+        yield
+        self._stage_times[name] = time.perf_counter() - start
+    
+    def partition(self, graph: Graph, balance_ratio: float = 0.5) -> Tuple[Partition, PerformanceMetrics]:
+        """Выполнить разбиение с расширенной статистикой"""
+        self._reset_stats()
+        
+        partition, metrics = super().partition(graph, balance_ratio)
+        
+        # Добавляем дополнительную статистику
+        metrics.extra.update({
+            'iterations': self._iterations,
+            'stage_times': self._stage_times.copy(),
+            'improvement_history': self._improvement_history.copy()
+        })
+        
+        return partition, metrics

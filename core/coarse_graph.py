@@ -1,10 +1,10 @@
 """
-Специальный класс для представления грубых графов на этапе стягивания
+Грубый граф для многоуровневого разбиения
 """
 
 from typing import List, Dict, Tuple, Optional
-import numpy as np
 from collections import defaultdict
+import numpy as np
 
 import sys
 from pathlib import Path
@@ -15,20 +15,20 @@ from core.partition import Partition
 
 
 class CoarseGraph:
-    """
-    Грубый граф, полученный стягиванием исходного
-    """
+    """Грубый граф, полученный стягиванием нескольких вершин"""
     
-    def __init__(self, num_coarse_vertices: int):
-        self.num_vertices = num_coarse_vertices
+    def __init__(self, num_vertices: int = 0):
+        self.num_vertices = num_vertices
         self.num_edges = 0
-        self._adjacency: List[Dict[int, int]] = [{} for _ in range(num_coarse_vertices)]
-        self._vertex_weights = np.zeros(num_coarse_vertices, dtype=np.int32)
-        self._coarse_to_original: List[List[int]] = [[] for _ in range(num_coarse_vertices)]
+        self._adjacency: List[Dict[int, int]] = [{} for _ in range(num_vertices)]
+        self._vertex_weights = np.zeros(num_vertices, dtype=np.int32)
+        self._coarse_to_original: List[List[int]] = [[] for _ in range(num_vertices)]
         self._original_to_coarse: Dict[int, int] = {}
     
     def add_edge(self, u: int, v: int, weight: int = 1) -> None:
         if u == v:
+            return
+        if u >= self.num_vertices or v >= self.num_vertices:
             return
         
         if v in self._adjacency[u]:
@@ -39,91 +39,83 @@ class CoarseGraph:
             self._adjacency[v][u] = weight
             self.num_edges += 1
     
-    def get_neighbors(self, v: int) -> Dict[int, int]:
-        if v < len(self._adjacency):
-            return self._adjacency[v].copy()
-        return {}
-    
-    def get_vertex_weight(self, v: int) -> int:
-        if v < len(self._vertex_weights):
-            return self._vertex_weights[v]
-        return 0
+    def get_coarse_vertex(self, original_vertex: int) -> int:
+        return self._original_to_coarse.get(original_vertex, -1)
     
     def get_original_vertices(self, coarse_vertex: int) -> List[int]:
         if coarse_vertex < len(self._coarse_to_original):
             return self._coarse_to_original[coarse_vertex].copy()
         return []
     
-    def get_coarse_vertex(self, original_vertex: int) -> int:
-        return self._original_to_coarse.get(original_vertex, -1)
-    
     def get_original_vertex_count(self) -> int:
-        if self._original_to_coarse:
-            return max(self._original_to_coarse.keys()) + 1
-        return 0
+        if not self._original_to_coarse:
+            return 0
+        return max(self._original_to_coarse.keys()) + 1
     
     def expand_partition(self, partition: Partition) -> Partition:
-        """
-        Проекция разбиения с грубого графа на исходный
-        """
-        # Находим количество исходных вершин
         if not self._original_to_coarse:
-            return Partition(0, partition.num_parts)
+            return Partition(0)
         
         num_original = self.get_original_vertex_count()
+        original_partition = Partition(num_original)
         
-        # Создаём новое разбиение правильного размера
-        original_partition = Partition(num_original, partition.num_parts)
-        
-        # Проецируем разбиение
         for original_v, coarse_v in self._original_to_coarse.items():
             if coarse_v < partition.num_vertices:
                 part = partition.get_part(coarse_v)
-                if part != -1 and part < partition.num_parts:
+                if part != -1:
                     original_partition.assign(original_v, part)
         
-        # Назначаем оставшиеся вершины (если есть)
         for v in range(num_original):
             if original_partition.get_part(v) == -1:
-                # Назначаем в часть с минимальным размером
-                sizes = original_partition.part_sizes
-                min_part = np.argmin(sizes)
-                original_partition.assign(v, min_part)
+                if original_partition.size0 <= original_partition.size1:
+                    original_partition.assign(v, 0)
+                else:
+                    original_partition.assign(v, 1)
         
         return original_partition
     
+    def to_graph(self) -> Graph:
+        g = Graph(self.num_vertices)
+        for v in range(self.num_vertices):
+            g.set_vertex_weight(v, self._vertex_weights[v])
+        for u in range(self.num_vertices):
+            for v, w in self._adjacency[u].items():
+                if u < v:
+                    g.add_edge(u, v, w)
+        return g
+    
     @staticmethod
     def from_matching(graph: Graph, matching: List[Tuple[int, int]]) -> 'CoarseGraph':
-        """Создание грубого графа на основе паросочетания"""
+        n = graph.num_vertices
+        
         vertex_map = {}
-        next_coarse_id = 0
+        next_id = 0
         used = set()
         
-        # Обрабатываем пары
         for u, v in matching:
             if u in used or v in used:
                 continue
-            
-            vertex_map[u] = next_coarse_id
-            vertex_map[v] = next_coarse_id
+            vertex_map[u] = next_id
+            vertex_map[v] = next_id
             used.add(u)
             used.add(v)
-            next_coarse_id += 1
+            next_id += 1
         
-        # Оставшиеся вершины
-        for v in range(graph.num_vertices):
+        for v in range(n):
             if v not in vertex_map:
-                vertex_map[v] = next_coarse_id
-                next_coarse_id += 1
+                vertex_map[v] = next_id
+                next_id += 1
         
-        # Создаём грубый граф
-        coarse = CoarseGraph(next_coarse_id)
+        coarse = CoarseGraph(next_id)
         
-        # Заполняем маппинги
-        for v, cv in vertex_map.items():
-            coarse._coarse_to_original[cv].append(v)
-            coarse._original_to_coarse[v] = cv
-            coarse._vertex_weights[cv] += graph.get_vertex_weight(v)
+        # Заполняем маппинги и веса - ПРАВИЛЬНАЯ ИТЕРАЦИЯ
+        for orig_v, coarse_v in vertex_map.items():
+            # orig_v - это int, coarse_v - это int
+            coarse._coarse_to_original[coarse_v].append(orig_v)
+            coarse._original_to_coarse[orig_v] = coarse_v
+            # Получаем вес вершины
+            weight = graph.get_vertex_weight(orig_v)
+            coarse._vertex_weights[coarse_v] += int(weight)
         
         # Добавляем рёбра
         edge_weights = defaultdict(int)
@@ -131,10 +123,8 @@ class CoarseGraph:
             cu = vertex_map[u]
             cv = vertex_map[v]
             if cu != cv:
-                if cu < cv:
-                    edge_weights[(cu, cv)] += w
-                else:
-                    edge_weights[(cv, cu)] += w
+                key = (min(cu, cv), max(cu, cv))
+                edge_weights[key] += w
         
         for (cu, cv), w in edge_weights.items():
             coarse._adjacency[cu][cv] = w
@@ -142,20 +132,5 @@ class CoarseGraph:
             coarse.num_edges += 1
         
         return coarse
-    
-    def to_graph(self) -> Graph:
-        """Преобразование в обычный граф"""
-        g = Graph(self.num_vertices)
-        
-        for v in range(self.num_vertices):
-            g.set_vertex_weight(v, self._vertex_weights[v])
-        
-        for u in range(self.num_vertices):
-            for v, w in self._adjacency[u].items():
-                if u < v:
-                    g.add_edge(u, v, w)
-        
-        return g
-    
     def __repr__(self) -> str:
-        return f"CoarseGraph(n={self.num_vertices}, m={self.num_edges})"
+        return f"CoarseGraph(n={self.num_vertices}, edges={self.num_edges})"

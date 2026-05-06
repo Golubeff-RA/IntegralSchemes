@@ -4,8 +4,9 @@ Graph partitioning algorithms
 """
 
 from .base_partitioner import BasePartitioner
-from .kernighan_lin import KernighanLin, ImprovedKernighanLin
-from .multilevel.multilevel_partitioner import MultilevelPartitioner
+from .kernighan_lin import KernighanLin, FastKernighanLin
+from .multilevel_slow import MultilevelPartitioner
+from .multilevel import FastMultilevelPartitioner, UltraFastMultilevelPartitioner
 
 __all__ = [
     'BasePartitioner',

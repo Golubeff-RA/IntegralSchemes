@@ -4,8 +4,8 @@ Graph generators for creating test instances
 """
 
 from .base_generator import BaseGraphGenerator
-from .cluster_generator import ClusterGraphGenerator, HierarchicalClusterGenerator
-from .barabasi_albert import BarabasiAlbertGenerator, ErdosRenyiGenerator, PowerLawClusterGenerator
+from .cluster_generator import ClusterGraphGenerator, FastClusterGenerator, create_cluster_generator
+from .barabasi_albert import BarabasiAlbertGenerator
 
 __all__ = [
     'BaseGraphGenerator',

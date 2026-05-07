@@ -9,11 +9,13 @@ import time
 import random
 from math import cos, sin, pi
 from tkinter import *
+from typing import Dict, List
 from tkinter import ttk, messagebox, scrolledtext, filedialog
 
 sys.path.append('.')
 
 from core.graph import Graph
+from core.coarse_graph import CoarseGraph
 from core.partition import Partition
 from algorithms.kernighan_lin import KernighanLin
 from algorithms.multilevel import FastMultilevelPartitioner
@@ -262,7 +264,48 @@ class GraphPartitioningGUI:
         self._create_widgets()
         self._setup_logging()
         self._create_menu()
-    
+    def _update_stage_display(self):
+        """Обновление отображения текущего уровня"""
+        idx = self.stage_index.get()
+        
+        if idx == len(self.display_levels):
+            self._show_original_stage()
+            return
+        
+        if idx < 0 or idx >= len(self.display_levels):
+            return
+        
+        level = self.display_levels[idx]
+        graph = level.graph
+        coarse_graph = level.coarse_graph
+        reverse_map = level.reverse_map
+        
+        self.stage_info.config(text=f"Level {idx}: {graph.num_vertices} vertices, {graph.num_edges} edges | "
+                                    f"Compression: {level.compression_ratio:.3f} | "
+                                    f"Next level: {coarse_graph.num_vertices} vertices")
+        
+        self._draw_coarsening_stage(graph, coarse_graph, reverse_map)
+
+    def _show_original_stage(self):
+        """Показать исходный граф"""
+        if not self.display_levels:
+            return
+        
+        original_graph = self.display_levels[0].graph
+        self.stage_info.config(text=f"Original Graph: {original_graph.num_vertices} vertices, {original_graph.num_edges} edges")
+        self._draw_graph_simple(original_graph)
+
+    def _prev_stage(self):
+        idx = self.stage_index.get()
+        if idx > 0:
+            self.stage_index.set(idx - 1)
+            self._update_stage_display()
+
+    def _next_stage(self):
+        idx = self.stage_index.get()
+        if idx < len(self.display_levels):
+            self.stage_index.set(idx + 1)
+            self._update_stage_display()
     def _create_menu(self):
         menubar = Menu(self.root)
         self.root.config(menu=menubar)
@@ -315,8 +358,8 @@ class GraphPartitioningGUI:
         # Основные параметры
         row = 0
         Label(graph_frame, text="Number of vertices:", bg='#2c3e50', fg='white').grid(row=row, column=0, sticky=W, padx=5, pady=3)
-        self.vertices_var = IntVar(value=50)
-        Spinbox(graph_frame, from_=10, to=5000, textvariable=self.vertices_var, width=10).grid(row=row, column=1, padx=5, pady=3)
+        self.vertices_var = IntVar(value=100)
+        Spinbox(graph_frame, from_=10, to=5000, textvariable=self.vertices_var, width=12, bg='#34495e', fg='white').grid(row=row, column=1, padx=5, pady=3)
         
         row += 1
         Label(graph_frame, text="Graph type:", bg='#2c3e50', fg='white').grid(row=row, column=0, sticky=W, padx=5, pady=3)
@@ -326,39 +369,55 @@ class GraphPartitioningGUI:
         row += 1
         Label(graph_frame, text="Number of clusters:", bg='#2c3e50', fg='white').grid(row=row, column=0, sticky=W, padx=5, pady=3)
         self.clusters_var = IntVar(value=5)
-        Spinbox(graph_frame, from_=2, to=50, textvariable=self.clusters_var, width=10).grid(row=row, column=1, padx=5, pady=3)
+        Spinbox(graph_frame, from_=2, to=50, textvariable=self.clusters_var, width=12, bg='#34495e', fg='white').grid(row=row, column=1, padx=5, pady=3)
         
+        # Intra-cluster probability с отображением значения
         row += 1
-        Label(graph_frame, text="Intra-cluster probability:", bg='#2c3e50', fg='white').grid(row=row, column=0, sticky=W, padx=5, pady=3)
+        Label(graph_frame, text="Intra-cluster prob:", bg='#2c3e50', fg='white').grid(row=row, column=0, sticky=W, padx=5, pady=3)
         self.intra_prob_var = DoubleVar(value=0.8)
-        Scale(graph_frame, from_=0.1, to=1.0, variable=self.intra_prob_var, orient=HORIZONTAL, bg='#2c3e50').grid(row=row, column=1, sticky=EW, padx=5, pady=3)
+        self.intra_prob_label = Label(graph_frame, text="0.80", bg='#2c3e50', fg='#3498db', width=6)
+        self.intra_prob_label.grid(row=row, column=1, sticky=E, padx=5, pady=3)
         
         row += 1
-        Label(graph_frame, text="Inter-cluster probability:", bg='#2c3e50', fg='white').grid(row=row, column=0, sticky=W, padx=5, pady=3)
-        self.inter_prob_var = DoubleVar(value=0.05)
-        Scale(graph_frame, from_=0.0, to=0.3, variable=self.inter_prob_var, orient=HORIZONTAL, bg='#2c3e50').grid(row=row, column=1, sticky=EW, padx=5, pady=3)
+        Scale(graph_frame, from_=0.0, to=1.0, resolution=0.01, variable=self.intra_prob_var, 
+            orient=HORIZONTAL, bg='#2c3e50', troughcolor='#34495e', sliderlength=20,
+            command=lambda x: self.intra_prob_label.config(text=f"{float(x):.2f}")).grid(row=row, column=0, columnspan=2, sticky=EW, padx=5, pady=3)
         
-        # Веса
+        # Inter-cluster probability с отображением значения
+        row += 1
+        Label(graph_frame, text="Inter-cluster prob:", bg='#2c3e50', fg='white').grid(row=row, column=0, sticky=W, padx=5, pady=3)
+        self.inter_prob_var = DoubleVar(value=0.05)
+        self.inter_prob_label = Label(graph_frame, text="0.05", bg='#2c3e50', fg='#3498db', width=6)
+        self.inter_prob_label.grid(row=row, column=1, sticky=E, padx=5, pady=3)
+        
+        row += 1
+        Scale(graph_frame, from_=0.0, to=0.3, resolution=0.005, variable=self.inter_prob_var, 
+            orient=HORIZONTAL, bg='#2c3e50', troughcolor='#34495e', sliderlength=20,
+            command=lambda x: self.inter_prob_label.config(text=f"{float(x):.3f}")).grid(row=row, column=0, columnspan=2, sticky=EW, padx=5, pady=3)
+        
+        # Vertex weights
         row += 1
         Label(graph_frame, text="Vertex weight range:", bg='#2c3e50', fg='white').grid(row=row, column=0, sticky=W, padx=5, pady=3)
         weight_frame = Frame(graph_frame, bg='#2c3e50')
         weight_frame.grid(row=row, column=1, sticky=W, padx=5, pady=3)
         self.vw_min_var = IntVar(value=1)
-        Spinbox(weight_frame, from_=1, to=100, textvariable=self.vw_min_var, width=5).pack(side=LEFT)
+        Spinbox(weight_frame, from_=1, to=100, textvariable=self.vw_min_var, width=5, bg='#34495e', fg='white').pack(side=LEFT)
         Label(weight_frame, text="-", bg='#2c3e50', fg='white').pack(side=LEFT, padx=2)
         self.vw_max_var = IntVar(value=10)
-        Spinbox(weight_frame, from_=1, to=100, textvariable=self.vw_max_var, width=5).pack(side=LEFT)
+        Spinbox(weight_frame, from_=1, to=100, textvariable=self.vw_max_var, width=5, bg='#34495e', fg='white').pack(side=LEFT)
         
+        # Edge weights
         row += 1
         Label(graph_frame, text="Edge weight range:", bg='#2c3e50', fg='white').grid(row=row, column=0, sticky=W, padx=5, pady=3)
         weight_frame = Frame(graph_frame, bg='#2c3e50')
         weight_frame.grid(row=row, column=1, sticky=W, padx=5, pady=3)
         self.ew_min_var = IntVar(value=1)
-        Spinbox(weight_frame, from_=1, to=100, textvariable=self.ew_min_var, width=5).pack(side=LEFT)
+        Spinbox(weight_frame, from_=1, to=100, textvariable=self.ew_min_var, width=5, bg='#34495e', fg='white').pack(side=LEFT)
         Label(weight_frame, text="-", bg='#2c3e50', fg='white').pack(side=LEFT, padx=2)
         self.ew_max_var = IntVar(value=5)
-        Spinbox(weight_frame, from_=1, to=100, textvariable=self.ew_max_var, width=5).pack(side=LEFT)
+        Spinbox(weight_frame, from_=1, to=100, textvariable=self.ew_max_var, width=5, bg='#34495e', fg='white').pack(side=LEFT)
         
+        row += 1
         Button(graph_frame, text="Generate Graph", command=self.generate_graph, bg='#3498db', fg='white', font=('Arial', 10, 'bold')).grid(row=row+1, column=0, columnspan=2, pady=10, sticky=EW)
         
         graph_frame.columnconfigure(1, weight=1)
@@ -367,22 +426,33 @@ class GraphPartitioningGUI:
         algo_frame = LabelFrame(parent, text="Algorithm Settings", bg='#2c3e50', fg='white', font=('Arial', 10, 'bold'))
         algo_frame.pack(fill=X, padx=10, pady=5)
         
-        Label(algo_frame, text="Algorithm:", bg='#2c3e50', fg='white').grid(row=0, column=0, sticky=W, padx=5, pady=3)
+        algo_row = 0
+        Label(algo_frame, text="Algorithm:", bg='#2c3e50', fg='white').grid(row=algo_row, column=0, sticky=W, padx=5, pady=3)
         self.algo_var = StringVar(value="Multilevel")
-        ttk.Combobox(algo_frame, textvariable=self.algo_var, values=["Kernighan-Lin", "Multilevel", "Compare"], width=15).grid(row=0, column=1, padx=5, pady=3)
+        ttk.Combobox(algo_frame, textvariable=self.algo_var, values=["Kernighan-Lin", "Multilevel", "Compare"], width=15).grid(row=algo_row, column=1, padx=5, pady=3)
         
-        Label(algo_frame, text="Max passes (KL):", bg='#2c3e50', fg='white').grid(row=1, column=0, sticky=W, padx=5, pady=3)
+        algo_row += 1
+        Label(algo_frame, text="Max passes (KL):", bg='#2c3e50', fg='white').grid(row=algo_row, column=0, sticky=W, padx=5, pady=3)
         self.max_passes_var = IntVar(value=20)
-        Spinbox(algo_frame, from_=1, to=100, textvariable=self.max_passes_var, width=10).grid(row=1, column=1, padx=5, pady=3)
+        Spinbox(algo_frame, from_=1, to=100, textvariable=self.max_passes_var, width=12, bg='#34495e', fg='white').grid(row=algo_row, column=1, padx=5, pady=3)
         
-        Label(algo_frame, text="Balance ratio:", bg='#2c3e50', fg='white').grid(row=2, column=0, sticky=W, padx=5, pady=3)
+        # Balance ratio с отображением значения
+        algo_row += 1
+        Label(algo_frame, text="Balance ratio:", bg='#2c3e50', fg='white').grid(row=algo_row, column=0, sticky=W, padx=5, pady=3)
         self.balance_var = DoubleVar(value=0.5)
-        #Scale(algo_frame, from_=0.3, to=0.7, variable=self.balance_var, orient=HORIZONTAL, bg='#2c3e50').grid(row=2, column=1, sticky=EW, padx=5, pady=3)
+        self.balance_label = Label(algo_frame, text="0.50", bg='#2c3e50', fg='#3498db', width=6)
+        self.balance_label.grid(row=algo_row, column=1, sticky=E, padx=5, pady=3)
         
-        Button(algo_frame, text="Run Algorithm", command=self.run_algorithm, bg='#e74c3c', fg='white', font=('Arial', 10, 'bold')).grid(row=3, column=0, columnspan=2, pady=10, sticky=EW)
+        algo_row += 1
+        Scale(algo_frame, from_=0.3, to=0.7, resolution=0.01, variable=self.balance_var, 
+            orient=HORIZONTAL, bg='#2c3e50', troughcolor='#34495e', sliderlength=20,
+            command=lambda x: self.balance_label.config(text=f"{float(x):.2f}")).grid(row=algo_row, column=0, columnspan=2, sticky=EW, padx=5, pady=3)
+        
+        algo_row += 1
+        Button(algo_frame, text="Run Algorithm", command=self.run_algorithm, bg='#e74c3c', fg='white', font=('Arial', 10, 'bold')).grid(row=algo_row, column=0, columnspan=2, pady=10, sticky=EW)
         
         algo_frame.columnconfigure(1, weight=1)
-        
+            
         # === View Controls ===
         view_frame = LabelFrame(parent, text="View Controls", bg='#2c3e50', fg='white', font=('Arial', 10, 'bold'))
         view_frame.pack(fill=X, padx=10, pady=5)
@@ -437,6 +507,7 @@ class GraphPartitioningGUI:
                 gen = FastClusterGenerator(
                     num_clusters=clusters,
                     vertices_per_cluster=vertices_per_cluster,
+                    target_edges=min(n * 6, 500000),
                     intra_ratio=intra_prob,
                     weight_range=(ew_min, ew_max),
                     vertex_weight_range=(vw_min, vw_max),
@@ -498,13 +569,22 @@ class GraphPartitioningGUI:
                 if algorithm == "Kernighan-Lin":
                     part = KernighanLin(max_passes=max_passes, seed=42)
                     self.current_partition, metrics = part.partition(self.current_graph, balance)
-                    self.levels = None
+                    self.levels = []
                     self.current_ml = None
                     
                 elif algorithm == "Multilevel":
-                    self.current_ml = FastMultilevelPartitioner(refinement_passes=1, seed=42)
+                    # Используем MultilevelPartitioner
+                    from algorithms.multilevel_slow import MultilevelPartitioner
+                    self.current_ml = MultilevelPartitioner(
+                        min_coarse_vertices=20,
+                        max_levels=10,
+                        refinement_passes=2,
+                        seed=42
+                    )
                     self.current_partition, metrics = self.current_ml.partition(self.current_graph, balance)
-                    self.levels = getattr(self.current_ml, 'levels', [])
+                    # Сохраняем уровни
+                    self.levels = self.current_ml.levels if hasattr(self.current_ml, 'levels') else []
+                    print(f"  ✓ Saved {len(self.levels)} coarsening levels")
                     
                 else:  # Compare
                     print("\n--- Running Kernighan-Lin ---")
@@ -512,19 +592,26 @@ class GraphPartitioningGUI:
                     p_kl, m_kl = kl.partition(self.current_graph, balance)
                     
                     print("\n--- Running Multilevel ---")
-                    self.current_ml = FastMultilevelPartitioner(refinement_passes=1, seed=42)
+                    from algorithms.multilevel import MultilevelPartitioner
+                    self.current_ml = MultilevelPartitioner(
+                        min_coarse_vertices=20,
+                        max_levels=10,
+                        refinement_passes=2,
+                        seed=42
+                    )
                     p_ml, m_ml = self.current_ml.partition(self.current_graph, balance)
-                    self.levels = getattr(self.current_ml, 'levels', [])
+                    self.levels = self.current_ml.levels if hasattr(self.current_ml, 'levels') else []
+                    print(f"  ✓ Saved {len(self.levels)} coarsening levels")
                     
                     # Выбираем лучшее
                     if m_ml.cut_weight < m_kl.cut_weight:
                         self.current_partition = p_ml
                         metrics = m_ml
-                        print(f"\n✓ Multilevel is better!")
+                        print(f"\n✓ Multilevel is better! (cut: {m_ml.cut_weight} vs {m_kl.cut_weight})")
                     else:
                         self.current_partition = p_kl
                         metrics = m_kl
-                        print(f"\n✓ KL is better!")
+                        print(f"\n✓ KL is better! (cut: {m_kl.cut_weight} vs {m_ml.cut_weight})")
                 
                 self.root.after(0, self._on_algorithm_done, metrics)
             except Exception as e:
@@ -533,15 +620,46 @@ class GraphPartitioningGUI:
                 traceback.print_exc()
         
         threading.Thread(target=run, daemon=True).start()
-    
+
     def _on_algorithm_done(self, metrics):
         self.visualizer.set_partition(self.current_partition)
         self._update_metrics(metrics)
+        
         print(f"\n✓ Algorithm completed!")
         print(f"  Cut weight: {metrics.cut_weight}")
         print(f"  Time: {metrics.time_seconds:.4f}s")
         print(f"  Memory: {metrics.memory_mb:.2f}MB")
-    
+        
+        # Проверяем наличие уровней
+        if hasattr(self, 'levels') and self.levels:
+            print(f"  Coarsening levels available: {len(self.levels)}")
+            self.stages_btn.config(state=NORMAL)
+        else:
+            print(f"  No coarsening levels available")
+            self.stages_btn.config(state=DISABLED)
+        
+        # Обновляем информацию в метриках
+        self._update_metrics(metrics)
+
+    def show_stages(self):
+        """Показать окно с этапами стягивания"""
+        if hasattr(self, 'levels') and self.levels and len(self.levels) > 0:
+            print(f"\n=== Showing {len(self.levels)} coarsening stages ===")
+            self._show_stages_window()
+        else:
+            print("\n⚠️ No coarsening stages available.")
+            print("   Reasons:")
+            print("   1. You haven't run Multilevel algorithm yet")
+            print("   2. Graph is too small (need 50+ vertices for effective coarsening)")
+            print("   3. Graph is too dense (coarsening didn't reduce size)")
+            messagebox.showinfo("Info", 
+                "No coarsening stages available.\n\n"
+                "Possible reasons:\n"
+                "• You haven't run Multilevel algorithm\n"
+                "• Graph is too small (need 50+ vertices)\n"
+                "• Graph is too dense\n\n"
+                "Try generating a larger graph (100+ vertices) and running Multilevel algorithm.")
+        
     def _update_metrics(self, metrics=None):
         self.metrics_text.delete(1.0, END)
         
@@ -572,87 +690,161 @@ class GraphPartitioningGUI:
         else:
             self.metrics_text.insert(END, "Not partitioned yet")
     
-    def show_stages(self):
-        if self.levels:
-            self._show_stages_window()
-        else:
-            print("No coarsening stages available. Run Multilevel algorithm on a larger graph (100+ vertices).")
-    
     def _show_stages_window(self):
+        """Окно с наглядной визуализацией этапов стягивания"""
+        if not self.levels:
+            messagebox.showinfo("Info", "No coarsening stages available. Run Multilevel algorithm on a graph with 50+ vertices first.")
+            return
+        
         window = Toplevel(self.root)
-        window.title("Coarsening Stages")
-        window.geometry("900x700")
+        window.title("Coarsening Stages Visualizer")
+        window.geometry("1200x800")
         window.configure(bg='#2c3e50')
         
-        Label(window, text="Coarsening Levels", bg='#2c3e50', fg='white', font=('Arial', 14, 'bold')).pack(pady=10)
+        # Верхняя панель с управлением
+        control_frame = Frame(window, bg='#2c3e50')
+        control_frame.pack(fill=X, padx=10, pady=10)
         
-        # Список уровней
-        listbox_frame = Frame(window, bg='#2c3e50')
-        listbox_frame.pack(fill=X, padx=10, pady=5)
+        Label(control_frame, text="Coarsening Level:", bg='#2c3e50', fg='white', font=('Arial', 12, 'bold')).pack(side=LEFT, padx=5)
         
-        listbox = Listbox(listbox_frame, height=8, bg='#34495e', fg='white', font=('Courier', 10))
-        listbox.pack(fill=X, expand=True)
+        self.stage_index = IntVar(value=0)
+        self.stage_spinbox = Spinbox(control_frame, from_=0, to=len(self.levels), textvariable=self.stage_index, 
+                                    width=5, command=self._update_stage_display, bg='#34495e', fg='white')
+        self.stage_spinbox.pack(side=LEFT, padx=5)
         
-        for i, level in enumerate(self.levels):
-            listbox.insert(END, f"Level {i}: {level.graph.num_vertices} vertices, {level.graph.num_edges} edges (compression: {level.compression_ratio:.3f})")
+        Button(control_frame, text="◀ Previous", command=self._prev_stage, bg='#3498db', fg='white').pack(side=LEFT, padx=5)
+        Button(control_frame, text="Next ▶", command=self._next_stage, bg='#3498db', fg='white').pack(side=LEFT, padx=5)
+        Button(control_frame, text="Show Original", command=self._show_original_stage, bg='#2ecc71', fg='white').pack(side=LEFT, padx=20)
         
-        # Информация
-        info_label = Label(window, text="Select a level to view", bg='#2c3e50', fg='white')
-        info_label.pack(pady=5)
+        # Информационная панель
+        self.stage_info = Label(window, text="", bg='#2c3e50', fg='#3498db', font=('Arial', 10))
+        self.stage_info.pack(pady=5)
         
-        # Канвас для визуализации
-        canvas_frame = Frame(window, bg='#2c3e50')
-        canvas_frame.pack(fill=BOTH, expand=True, padx=10, pady=10)
+        # Основной канвас для визуализации
+        self.stage_canvas = Canvas(window, bg='#1e1e1e', highlightthickness=0)
+        self.stage_canvas.pack(fill=BOTH, expand=True, padx=10, pady=10)
         
-        stage_canvas = Canvas(canvas_frame, bg='#1e1e1e')
-        stage_canvas.pack(fill=BOTH, expand=True)
+        # Легенда
+        legend_frame = Frame(window, bg='#2c3e50')
+        legend_frame.pack(fill=X, padx=10, pady=5)
         
-        def on_select(event):
-            idx = listbox.curselection()[0]
-            level = self.levels[idx]
-            graph = level.graph
+        Label(legend_frame, text="Legend:", bg='#2c3e50', fg='white', font=('Arial', 10, 'bold')).pack(side=LEFT, padx=10)
+        
+        # Цвета для разных частей
+        colors = ['#3498db', '#e74c3c', '#2ecc71', '#f39c12', '#9b59b6']
+        for i, col in enumerate(colors):
+            Label(legend_frame, text=f"Part {i}", bg=col, fg='white', padx=10, pady=2).pack(side=LEFT, padx=5)
+        
+        Label(legend_frame, text="→", bg='#2c3e50', fg='#e74c3c', font=('Arial', 12, 'bold')).pack(side=LEFT, padx=10)
+        Label(legend_frame, text="Contracted edge", bg='#2c3e50', fg='#e74c3c').pack(side=LEFT)
+        
+        # Сохраняем уровни и текущий отображаемый граф
+        self.display_levels = self.levels
+        self.current_display_graph = None
+        self.current_display_partition = None
+        
+        # Показываем первый уровень
+        self.stage_index.set(0)
+        self._update_stage_display()
+        
+        # Привязываем события изменения размера окна
+        window.bind('<Configure>', lambda e: self._update_stage_display() if e.widget == window else None)
+
+    def _update_stage_display(self):
+        """Обновление отображения текущего уровня"""
+        idx = self.stage_index.get()
+        
+        if idx == len(self.display_levels):
+            self._show_original_stage()
+            return
+        
+        if idx < 0 or idx >= len(self.display_levels):
+            return
+        
+        level = self.display_levels[idx]
+        graph = level.graph
+        coarse_graph = level.coarse_graph
+        reverse_map = level.reverse_map
+        
+        self.stage_info.config(text=f"Level {idx}: {graph.num_vertices} vertices, {graph.num_edges} edges | "
+                                    f"Compression: {level.compression_ratio:.3f}")
+        
+        # Визуализируем граф с показом того, какие вершины будут стянуты
+        self._draw_coarsening_stage(graph, coarse_graph, reverse_map)
+
+    def _show_original_stage(self):
+        """Показать исходный граф"""
+        if not self.display_levels:
+            return
+        
+        original_graph = self.display_levels[0].graph
+        self.stage_info.config(text=f"Original Graph: {original_graph.num_vertices} vertices, {original_graph.num_edges} edges")
+        self._draw_graph_simple(original_graph)
+
+    def _prev_stage(self):
+        """Предыдущий уровень"""
+        idx = self.stage_index.get()
+        if idx > 0:
+            self.stage_index.set(idx - 1)
+            self._update_stage_display()
+
+    def _next_stage(self):
+        """Следующий уровень"""
+        idx = self.stage_index.get()
+        if idx < len(self.display_levels):
+            self.stage_index.set(idx + 1)
+            self._update_stage_display()
+
+    def _draw_graph_simple(self, graph: Graph):
+        """
+        Простая визуализация графа без группировки
+        """
+        self.stage_canvas.delete("all")
+        w = self.stage_canvas.winfo_width()
+        h = self.stage_canvas.winfo_height()
+        if w <= 1:
+            w = 1000
+        if h <= 1:
+            h = 600
+        
+        n = graph.num_vertices
+        if n == 0:
+            return
+        
+        center_x, center_y = w/2, h/2
+        radius = min(w, h) * 0.4
+        
+        positions = []
+        for i in range(n):
+            angle = 2 * pi * i / n
+            x = center_x + radius * cos(angle)
+            y = center_y + radius * sin(angle)
+            positions.append((x, y))
+        
+        # Рисуем рёбра
+        for u, v, wgt in graph.edges():
+            x1, y1 = positions[u]
+            x2, y2 = positions[v]
+            self.stage_canvas.create_line(x1, y1, x2, y2, fill='#555555', width=1)
             
-            stage_canvas.delete("all")
-            n = graph.num_vertices
-            if n == 0:
-                return
-            
-            w = stage_canvas.winfo_width()
-            h = stage_canvas.winfo_height()
-            if w <= 1:
-                w = 800
-            if h <= 1:
-                h = 500
-            
-            center_x, center_y = w/2, h/2
-            radius = min(w, h) * 0.4
-            
-            # Рисуем рёбра
-            for u, v, wgt in graph.edges():
-                angle1 = 2 * pi * u / n
-                angle2 = 2 * pi * v / n
-                x1 = center_x + radius * cos(angle1)
-                y1 = center_y + radius * sin(angle1)
-                x2 = center_x + radius * cos(angle2)
-                y2 = center_y + radius * sin(angle2)
-                stage_canvas.create_line(x1, y1, x2, y2, fill='#555555', width=1)
-            
-            # Рисуем вершины
-            colors = ['#3498db', '#e74c3c', '#2ecc71', '#f39c12', '#9b59b6']
-            for i in range(n):
-                angle = 2 * pi * i / n
-                x = center_x + radius * cos(angle)
-                y = center_y + radius * sin(angle)
-                color = colors[i % len(colors)]
-                stage_canvas.create_oval(x-12, y-12, x+12, y+12, fill=color, outline='white', width=2)
-                stage_canvas.create_text(x, y, text=str(i), fill='white', font=('Arial', 10, 'bold'))
-            
-            info_label.config(text=f"Level {idx}: {n} vertices, {graph.num_edges} edges")
+            if wgt != 1:
+                mx, my = (x1 + x2) / 2, (y1 + y2) / 2
+                self.stage_canvas.create_text(mx, my, text=str(wgt), fill='#888888', font=('Arial', 8))
         
-        listbox.bind('<<ListboxSelect>>', on_select)
-        if self.levels:
-            listbox.selection_set(0)
-            on_select(None)
+        # Рисуем вершины
+        colors = ['#3498db', '#e74c3c', '#2ecc71', '#f39c12', '#9b59b6']
+        for i in range(n):
+            x, y = positions[i]
+            weight = graph.get_vertex_weight(i)
+            color = colors[i % len(colors)]
+            r = self.visualizer.node_radius * (0.7 + weight / 20)
+            r = min(r, self.visualizer.node_radius * 1.2)
+            
+            self.stage_canvas.create_oval(x - r, y - r, x + r, y + r, fill=color, outline='white', width=2)
+            self.stage_canvas.create_text(x, y, text=str(i), fill='white', font=('Arial', 10, 'bold'))
+            
+            if weight != 1:
+                self.stage_canvas.create_text(x, y + r + 5, text=f"w={weight}", fill='#aaaaaa', font=('Arial', 8))
     
     def load_graph(self):
         filename = filedialog.askopenfilename(filetypes=[("Text files", "*.txt"), ("All files", "*.*")])

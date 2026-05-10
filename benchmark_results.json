@@ -16,7 +16,7 @@
         "algorithm": "KL",
         "success": true,
         "cut_weight": 114,
-        "time": 0.09328079223632812,
+        "time": 0.0863180160522461,
         "memory_mb": 0.06798934936523438,
         "balance": 1.0,
         "error": null
@@ -25,7 +25,7 @@
         "algorithm": "Multilevel",
         "success": true,
         "cut_weight": 114,
-        "time": 0.36638712882995605,
+        "time": 0.25234174728393555,
         "memory_mb": 0.0,
         "balance": 1.0,
         "error": null
@@ -34,7 +34,7 @@
         "algorithm": "FastMultilevel",
         "success": true,
         "cut_weight": 114,
-        "time": 0.07633423805236816,
+        "time": 0.09114384651184082,
         "memory_mb": 0.0,
         "balance": 1.0,
         "error": null
@@ -58,7 +58,7 @@
         "algorithm": "KL",
         "success": true,
         "cut_weight": 2588,
-        "time": 6.8264241218566895,
+        "time": 8.745113849639893,
         "memory_mb": 1.4210357666015625,
         "balance": 1.0,
         "error": null
@@ -67,7 +67,7 @@
         "algorithm": "Multilevel",
         "success": true,
         "cut_weight": 2588,
-        "time": 93.4847137928009,
+        "time": 37.48425793647766,
         "memory_mb": 0.0,
         "balance": 1.0,
         "error": null
@@ -76,7 +76,7 @@
         "algorithm": "FastMultilevel",
         "success": true,
         "cut_weight": 2587,
-        "time": 8.642366647720337,
+        "time": 8.896769762039185,
         "memory_mb": 0.0,
         "balance": 1.0,
         "error": null
@@ -100,7 +100,7 @@
         "algorithm": "KL",
         "success": true,
         "cut_weight": 314,
-        "time": 0.8252205848693848,
+        "time": 0.8627097606658936,
         "memory_mb": 0.04108428955078125,
         "balance": 1.0,
         "error": null
@@ -109,7 +109,7 @@
         "algorithm": "Multilevel",
         "success": true,
         "cut_weight": 314,
-        "time": 3.053309679031372,
+        "time": 0.9592640399932861,
         "memory_mb": 0.0,
         "balance": 1.0,
         "error": null
@@ -118,7 +118,7 @@
         "algorithm": "FastMultilevel",
         "success": true,
         "cut_weight": 314,
-        "time": 0.7304604053497314,
+        "time": 0.8383002281188965,
         "memory_mb": 0.0,
         "balance": 1.0,
         "error": null
@@ -142,7 +142,7 @@
         "algorithm": "KL",
         "success": true,
         "cut_weight": 756,
-        "time": 4.340498924255371,
+        "time": 4.360977649688721,
         "memory_mb": 0.33661651611328125,
         "balance": 1.0,
         "error": null
@@ -150,8 +150,8 @@
       "Multilevel": {
         "algorithm": "Multilevel",
         "success": true,
-        "cut_weight": 756,
-        "time": 29.997165203094482,
+        "cut_weight": 757,
+        "time": 5.585151433944702,
         "memory_mb": 0.0,
         "balance": 1.0,
         "error": null
@@ -160,7 +160,7 @@
         "algorithm": "FastMultilevel",
         "success": true,
         "cut_weight": 765,
-        "time": 3.2829456329345703,
+        "time": 4.0372326374053955,
         "memory_mb": 0.0,
         "balance": 1.0,
         "error": null
@@ -184,7 +184,7 @@
         "algorithm": "KL",
         "success": true,
         "cut_weight": 272,
-        "time": 2.064842939376831,
+        "time": 2.7428994178771973,
         "memory_mb": 0.1584930419921875,
         "balance": 1.0,
         "error": null
@@ -193,7 +193,7 @@
         "algorithm": "Multilevel",
         "success": true,
         "cut_weight": 272,
-        "time": 9.091516494750977,
+        "time": 2.1653902530670166,
         "memory_mb": 0.0,
         "balance": 1.0,
         "error": null
@@ -202,7 +202,7 @@
         "algorithm": "FastMultilevel",
         "success": true,
         "cut_weight": 272,
-        "time": 2.185288429260254,
+        "time": 2.8370206356048584,
         "memory_mb": 0.0,
         "balance": 1.0,
         "error": null
@@ -226,7 +226,7 @@
         "algorithm": "KL",
         "success": true,
         "cut_weight": 1517,
-        "time": 4.945821046829224,
+        "time": 5.918806076049805,
         "memory_mb": 0.9520339965820312,
         "balance": 1.0,
         "error": null
@@ -235,7 +235,7 @@
         "algorithm": "Multilevel",
         "success": true,
         "cut_weight": 1517,
-        "time": 59.43275451660156,
+        "time": 14.173597574234009,
         "memory_mb": 0.0,
         "balance": 1.0,
         "error": null
@@ -244,7 +244,7 @@
         "algorithm": "FastMultilevel",
         "success": true,
         "cut_weight": 1518,
-        "time": 4.026697397232056,
+        "time": 4.048376083374023,
         "memory_mb": 0.0,
         "balance": 1.0,
         "error": null
@@ -268,7 +268,7 @@
         "algorithm": "KL",
         "success": true,
         "cut_weight": 6098,
-        "time": 28.462377309799194,
+        "time": 32.768269538879395,
         "memory_mb": 4.283355712890625,
         "balance": 1.0,
         "error": null
@@ -277,7 +277,7 @@
         "algorithm": "Multilevel",
         "success": true,
         "cut_weight": 31291,
-        "time": 174.24135518074036,
+        "time": 132.75676202774048,
         "memory_mb": 0.0,
         "balance": 1.0,
         "error": null
@@ -286,7 +286,7 @@
         "algorithm": "FastMultilevel",
         "success": true,
         "cut_weight": 31380,
-        "time": 12.193989276885986,
+        "time": 15.327843427658081,
         "memory_mb": 0.0,
         "balance": 1.0,
         "error": null
@@ -310,7 +310,7 @@
         "algorithm": "KL",
         "success": true,
         "cut_weight": 4230,
-        "time": 4.32286262512207,
+        "time": 5.525742530822754,
         "memory_mb": 0.90216064453125,
         "balance": 1.0,
         "error": null
@@ -318,8 +318,8 @@
       "Multilevel": {
         "algorithm": "Multilevel",
         "success": true,
-        "cut_weight": 4230,
-        "time": 57.67125201225281,
+        "cut_weight": 4171,
+        "time": 21.75269842147827,
         "memory_mb": 0.0,
         "balance": 1.0,
         "error": null
@@ -328,7 +328,7 @@
         "algorithm": "FastMultilevel",
         "success": true,
         "cut_weight": 4199,
-        "time": 4.889983415603638,
+        "time": 5.982428312301636,
         "memory_mb": 0.0,
         "balance": 1.0,
         "error": null
@@ -352,7 +352,7 @@
         "algorithm": "KL",
         "success": true,
         "cut_weight": 21695,
-        "time": 29.833747148513794,
+        "time": 38.46979379653931,
         "memory_mb": 3.59735107421875,
         "balance": 1.0,
         "error": null
@@ -361,7 +361,7 @@
         "algorithm": "Multilevel",
         "success": true,
         "cut_weight": 25073,
-        "time": 158.00765323638916,
+        "time": 117.73175024986267,
         "memory_mb": 0.0,
         "balance": 1.0,
         "error": null
@@ -370,7 +370,7 @@
         "algorithm": "FastMultilevel",
         "success": true,
         "cut_weight": 25077,
-        "time": 12.273877620697021,
+        "time": 14.490145921707153,
         "memory_mb": 0.0,
         "balance": 1.0,
         "error": null
@@ -394,7 +394,7 @@
         "algorithm": "KL",
         "success": true,
         "cut_weight": 50,
-        "time": 0.2346959114074707,
+        "time": 0.256030797958374,
         "memory_mb": 0.011631011962890625,
         "balance": 1.0,
         "error": null
@@ -402,8 +402,8 @@
       "Multilevel": {
         "algorithm": "Multilevel",
         "success": true,
-        "cut_weight": 51,
-        "time": 0.6911120414733887,
+        "cut_weight": 53,
+        "time": 0.2517080307006836,
         "memory_mb": 0.0,
         "balance": 1.0,
         "error": null
@@ -412,7 +412,7 @@
         "algorithm": "FastMultilevel",
         "success": true,
         "cut_weight": 50,
-        "time": 0.21001410484313965,
+        "time": 0.2859807014465332,
         "memory_mb": 0.0,
         "balance": 1.0,
         "error": null
@@ -436,7 +436,7 @@
         "algorithm": "KL",
         "success": true,
         "cut_weight": 2153,
-        "time": 4.221878290176392,
+        "time": 4.883740425109863,
         "memory_mb": 0.2237701416015625,
         "balance": 1.0,
         "error": null
@@ -444,8 +444,8 @@
       "Multilevel": {
         "algorithm": "Multilevel",
         "success": true,
-        "cut_weight": 2153,
-        "time": 55.12963271141052,
+        "cut_weight": 2160,
+        "time": 11.098766326904297,
         "memory_mb": 0.0,
         "balance": 1.0,
         "error": null
@@ -454,7 +454,7 @@
         "algorithm": "FastMultilevel",
         "success": true,
         "cut_weight": 2095,
-        "time": 5.747655153274536,
+        "time": 5.65420126914978,
         "memory_mb": 0.0,
         "balance": 1.0,
         "error": null
@@ -478,7 +478,7 @@
         "algorithm": "KL",
         "success": true,
         "cut_weight": 8568,
-        "time": 9.325944900512695,
+        "time": 9.065895557403564,
         "memory_mb": 1.0749893188476562,
         "balance": 1.0,
         "error": null
@@ -487,7 +487,7 @@
         "algorithm": "Multilevel",
         "success": true,
         "cut_weight": 8680,
-        "time": 76.33531022071838,
+        "time": 41.382461071014404,
         "memory_mb": 0.0,
         "balance": 1.0,
         "error": null
@@ -496,7 +496,7 @@
         "algorithm": "FastMultilevel",
         "success": true,
         "cut_weight": 8770,
-        "time": 5.4775800704956055,
+        "time": 7.454286813735962,
         "memory_mb": 0.0,
         "balance": 1.0,
         "error": null
@@ -520,7 +520,7 @@
         "algorithm": "KL",
         "success": true,
         "cut_weight": 863,
-        "time": 2.7139997482299805,
+        "time": 3.6360881328582764,
         "memory_mb": 0.0413360595703125,
         "balance": 1.0,
         "error": null
@@ -528,8 +528,8 @@
       "Multilevel": {
         "algorithm": "Multilevel",
         "success": true,
-        "cut_weight": 863,
-        "time": 17.664835929870605,
+        "cut_weight": 813,
+        "time": 3.6246933937072754,
         "memory_mb": 0.0,
         "balance": 1.0,
         "error": null
@@ -538,7 +538,7 @@
         "algorithm": "FastMultilevel",
         "success": true,
         "cut_weight": 858,
-        "time": 3.7153711318969727,
+        "time": 3.902367353439331,
         "memory_mb": 0.0,
         "balance": 1.0,
         "error": null
@@ -562,7 +562,7 @@
         "algorithm": "KL",
         "success": true,
         "cut_weight": 434,
-        "time": 1.0190074443817139,
+        "time": 1.112386703491211,
         "memory_mb": 0.04120635986328125,
         "balance": 1.0,
         "error": null
@@ -570,8 +570,8 @@
       "Multilevel": {
         "algorithm": "Multilevel",
         "success": true,
-        "cut_weight": 434,
-        "time": 5.328902959823608,
+        "cut_weight": 432,
+        "time": 1.2500262260437012,
         "memory_mb": 0.0,
         "balance": 1.0,
         "error": null
@@ -580,7 +580,7 @@
         "algorithm": "FastMultilevel",
         "success": true,
         "cut_weight": 434,
-        "time": 1.052485466003418,
+        "time": 1.1394569873809814,
         "memory_mb": 0.0,
         "balance": 1.0,
         "error": null
@@ -604,7 +604,7 @@
         "algorithm": "KL",
         "success": true,
         "cut_weight": 1047,
-        "time": 2.194347620010376,
+        "time": 2.4186525344848633,
         "memory_mb": 0.8796463012695312,
         "balance": 1.0,
         "error": null
@@ -613,7 +613,7 @@
         "algorithm": "Multilevel",
         "success": true,
         "cut_weight": 1047,
-        "time": 28.404237270355225,
+        "time": 7.139987945556641,
         "memory_mb": 0.0,
         "balance": 1.0,
         "error": null
@@ -622,7 +622,7 @@
         "algorithm": "FastMultilevel",
         "success": true,
         "cut_weight": 1028,
-        "time": 3.7946979999542236,
+        "time": 4.603024005889893,
         "memory_mb": 0.0,
         "balance": 1.0,
         "error": null
@@ -646,7 +646,7 @@
         "algorithm": "KL",
         "success": true,
         "cut_weight": 150,
-        "time": 0.10611367225646973,
+        "time": 0.07916259765625,
         "memory_mb": 0.040927886962890625,
         "balance": 1.0,
         "error": null
@@ -655,7 +655,7 @@
         "algorithm": "Multilevel",
         "success": true,
         "cut_weight": 150,
-        "time": 0.465778112411499,
+        "time": 0.3795936107635498,
         "memory_mb": 0.0,
         "balance": 1.0,
         "error": null
@@ -664,7 +664,7 @@
         "algorithm": "FastMultilevel",
         "success": true,
         "cut_weight": 150,
-        "time": 0.08136272430419922,
+        "time": 0.1101534366607666,
         "memory_mb": 0.0,
         "balance": 1.0,
         "error": null
@@ -688,7 +688,7 @@
         "algorithm": "KL",
         "success": true,
         "cut_weight": 3408,
-        "time": 7.277352333068848,
+        "time": 8.924904823303223,
         "memory_mb": 3.6053085327148438,
         "balance": 1.0,
         "error": null
@@ -697,7 +697,7 @@
         "algorithm": "Multilevel",
         "success": true,
         "cut_weight": 3408,
-        "time": 110.7597222328186,
+        "time": 43.53831362724304,
         "memory_mb": 0.0,
         "balance": 1.0,
         "error": null
@@ -706,7 +706,7 @@
         "algorithm": "FastMultilevel",
         "success": true,
         "cut_weight": 3229,
-        "time": 8.222278594970703,
+        "time": 10.016607999801636,
         "memory_mb": 0.0,
         "balance": 1.0,
         "error": null
@@ -730,7 +730,7 @@
         "algorithm": "KL",
         "success": true,
         "cut_weight": 340,
-        "time": 2.3419971466064453,
+        "time": 2.8410329818725586,
         "memory_mb": 0.15886688232421875,
         "balance": 1.0,
         "error": null
@@ -738,8 +738,8 @@
       "Multilevel": {
         "algorithm": "Multilevel",
         "success": true,
-        "cut_weight": 340,
-        "time": 10.368093490600586,
+        "cut_weight": 359,
+        "time": 1.4869976043701172,
         "memory_mb": 0.0,
         "balance": 1.0,
         "error": null
@@ -748,7 +748,7 @@
         "algorithm": "FastMultilevel",
         "success": true,
         "cut_weight": 353,
-        "time": 2.500804901123047,
+        "time": 2.679776906967163,
         "memory_mb": 0.0,
         "balance": 1.0,
         "error": null
@@ -772,7 +772,7 @@
         "algorithm": "KL",
         "success": true,
         "cut_weight": 1813,
-        "time": 4.212385654449463,
+        "time": 4.6687095165252686,
         "memory_mb": 1.0590667724609375,
         "balance": 1.0,
         "error": null
@@ -781,7 +781,7 @@
         "algorithm": "Multilevel",
         "success": true,
         "cut_weight": 1813,
-        "time": 69.75824451446533,
+        "time": 17.328593492507935,
         "memory_mb": 0.0,
         "balance": 1.0,
         "error": null
@@ -790,7 +790,7 @@
         "algorithm": "FastMultilevel",
         "success": true,
         "cut_weight": 1699,
-        "time": 4.518434762954712,
+        "time": 4.58660888671875,
         "memory_mb": 0.0,
         "balance": 1.0,
         "error": null
@@ -814,7 +814,7 @@
         "algorithm": "KL",
         "success": true,
         "cut_weight": 7910,
-        "time": 26.554546117782593,
+        "time": 27.1501145362854,
         "memory_mb": 4.819488525390625,
         "balance": 1.0,
         "error": null
@@ -823,7 +823,7 @@
         "algorithm": "Multilevel",
         "success": true,
         "cut_weight": 26345,
-        "time": 206.11205005645752,
+        "time": 158.3655068874359,
         "memory_mb": 0.0,
         "balance": 1.0,
         "error": null
@@ -832,7 +832,7 @@
         "algorithm": "FastMultilevel",
         "success": true,
         "cut_weight": 30612,
-        "time": 14.768510341644287,
+        "time": 17.168455839157104,
         "memory_mb": 0.0,
         "balance": 1.0,
         "error": null
@@ -856,7 +856,7 @@
         "algorithm": "KL",
         "success": true,
         "cut_weight": 421,
-        "time": 0.7544829845428467,
+        "time": 0.8494429588317871,
         "memory_mb": 0.04108428955078125,
         "balance": 1.0,
         "error": null
@@ -865,7 +865,7 @@
         "algorithm": "Multilevel",
         "success": true,
         "cut_weight": 421,
-        "time": 2.7575087547302246,
+        "time": 0.9641444683074951,
         "memory_mb": 0.0,
         "balance": 1.0,
         "error": null
@@ -874,7 +874,7 @@
         "algorithm": "FastMultilevel",
         "success": true,
         "cut_weight": 421,
-        "time": 0.695871114730835,
+        "time": 0.7760026454925537,
         "memory_mb": 0.0,
         "balance": 1.0,
         "error": null
@@ -898,7 +898,7 @@
         "algorithm": "KL",
         "success": true,
         "cut_weight": 1733,
-        "time": 0.2959408760070801,
+        "time": 0.35697412490844727,
         "memory_mb": 0.041019439697265625,
         "balance": 1.0,
         "error": null
@@ -906,8 +906,8 @@
       "Multilevel": {
         "algorithm": "Multilevel",
         "success": true,
-        "cut_weight": 1733,
-        "time": 1.9176161289215088,
+        "cut_weight": 1730,
+        "time": 2.5305516719818115,
         "memory_mb": 0.0,
         "balance": 1.0,
         "error": null
@@ -916,7 +916,7 @@
         "algorithm": "FastMultilevel",
         "success": true,
         "cut_weight": 1733,
-        "time": 0.2980475425720215,
+        "time": 0.34397387504577637,
         "memory_mb": 0.0,
         "balance": 1.0,
         "error": null
@@ -940,7 +940,7 @@
         "algorithm": "KL",
         "success": true,
         "cut_weight": 2,
-        "time": 0.17066264152526855,
+        "time": 0.17617273330688477,
         "memory_mb": 0.0115966796875,
         "balance": 1.0,
         "error": null
@@ -949,7 +949,7 @@
         "algorithm": "Multilevel",
         "success": true,
         "cut_weight": 2,
-        "time": 0.7494785785675049,
+        "time": 0.20086216926574707,
         "memory_mb": 0.0,
         "balance": 1.0,
         "error": null
@@ -958,7 +958,7 @@
         "algorithm": "FastMultilevel",
         "success": true,
         "cut_weight": 2,
-        "time": 0.15953278541564941,
+        "time": 0.1762378215789795,
         "memory_mb": 0.0,
         "balance": 1.0,
         "error": null
@@ -982,7 +982,7 @@
         "algorithm": "KL",
         "success": true,
         "cut_weight": 2,
-        "time": 0.5691938400268555,
+        "time": 0.7218310832977295,
         "memory_mb": 0.0600738525390625,
         "balance": 1.0,
         "error": null
@@ -991,7 +991,7 @@
         "algorithm": "Multilevel",
         "success": true,
         "cut_weight": 2,
-        "time": 19.873122215270996,
+        "time": 6.849822044372559,
         "memory_mb": 0.0,
         "balance": 1.0,
         "error": null
@@ -1000,7 +1000,7 @@
         "algorithm": "FastMultilevel",
         "success": true,
         "cut_weight": 2,
-        "time": 0.8885593414306641,
+        "time": 0.743208646774292,
         "memory_mb": 0.0,
         "balance": 1.0,
         "error": null
@@ -1024,7 +1024,7 @@
         "algorithm": "KL",
         "success": true,
         "cut_weight": 1,
-        "time": 1.2360289096832275,
+        "time": 1.400850772857666,
         "memory_mb": 0.04328155517578125,
         "balance": 1.0,
         "error": null
@@ -1033,7 +1033,7 @@
         "algorithm": "Multilevel",
         "success": true,
         "cut_weight": 1,
-        "time": 16.945860385894775,
+        "time": 3.0596728324890137,
         "memory_mb": 0.0,
         "balance": 1.0,
         "error": null
@@ -1042,7 +1042,7 @@
         "algorithm": "FastMultilevel",
         "success": true,
         "cut_weight": 1,
-        "time": 1.2374076843261719,
+        "time": 1.5778334140777588,
         "memory_mb": 0.0,
         "balance": 1.0,
         "error": null
@@ -1066,7 +1066,7 @@
         "algorithm": "KL",
         "success": true,
         "cut_weight": 2,
-        "time": 0.05441021919250488,
+        "time": 0.05534958839416504,
         "memory_mb": 0.004276275634765625,
         "balance": 1.0,
         "error": null
@@ -1074,8 +1074,8 @@
       "Multilevel": {
         "algorithm": "Multilevel",
         "success": true,
-        "cut_weight": 2,
-        "time": 0.2778897285461426,
+        "cut_weight": 5,
+        "time": 0.05687451362609863,
         "memory_mb": 0.0,
         "balance": 1.0,
         "error": null
@@ -1084,7 +1084,7 @@
         "algorithm": "FastMultilevel",
         "success": true,
         "cut_weight": 2,
-        "time": 0.04868149757385254,
+        "time": 0.046430349349975586,
         "memory_mb": 0.0,
         "balance": 1.0,
         "error": null
@@ -1108,7 +1108,7 @@
         "algorithm": "KL",
         "success": true,
         "cut_weight": 3,
-        "time": 1.6669471263885498,
+        "time": 1.9344863891601562,
         "memory_mb": 0.19162750244140625,
         "balance": 1.0,
         "error": null
@@ -1116,8 +1116,8 @@
       "Multilevel": {
         "algorithm": "Multilevel",
         "success": true,
-        "cut_weight": 3,
-        "time": 32.68520545959473,
+        "cut_weight": 5,
+        "time": 16.4396710395813,
         "memory_mb": 0.0,
         "balance": 1.0,
         "error": null
@@ -1126,7 +1126,7 @@
         "algorithm": "FastMultilevel",
         "success": true,
         "cut_weight": 3,
-        "time": 2.74648380279541,
+        "time": 3.6562752723693848,
         "memory_mb": 0.0,
         "balance": 1.0,
         "error": null
@@ -1150,7 +1150,7 @@
         "algorithm": "KL",
         "success": true,
         "cut_weight": 2,
-        "time": 3.3847296237945557,
+        "time": 4.506244421005249,
         "memory_mb": 1.0240936279296875,
         "balance": 1.0,
         "error": null
@@ -1158,8 +1158,8 @@
       "Multilevel": {
         "algorithm": "Multilevel",
         "success": true,
-        "cut_weight": 2,
-        "time": 56.7417151927948,
+        "cut_weight": 5,
+        "time": 46.662431716918945,
         "memory_mb": 0.0,
         "balance": 1.0,
         "error": null
@@ -1168,7 +1168,7 @@
         "algorithm": "FastMultilevel",
         "success": true,
         "cut_weight": 2,
-        "time": 3.696774482727051,
+        "time": 3.904445171356201,
         "memory_mb": 0.0,
         "balance": 1.0,
         "error": null
@@ -1192,7 +1192,7 @@
         "algorithm": "KL",
         "success": true,
         "cut_weight": 1,
-        "time": 1.2052719593048096,
+        "time": 1.275853157043457,
         "memory_mb": 0.0118865966796875,
         "balance": 1.0,
         "error": null
@@ -1201,7 +1201,7 @@
         "algorithm": "Multilevel",
         "success": true,
         "cut_weight": 1,
-        "time": 6.986895322799683,
+        "time": 0.5990152359008789,
         "memory_mb": 0.0,
         "balance": 1.0,
         "error": null
@@ -1210,7 +1210,7 @@
         "algorithm": "FastMultilevel",
         "success": true,
         "cut_weight": 1,
-        "time": 1.8276147842407227,
+        "time": 2.0713863372802734,
         "memory_mb": 0.0,
         "balance": 1.0,
         "error": null
@@ -1234,7 +1234,7 @@
         "algorithm": "KL",
         "success": true,
         "cut_weight": 13,
-        "time": 0.09486532211303711,
+        "time": 0.10280513763427734,
         "memory_mb": 0.011598587036132812,
         "balance": 0.96,
         "error": null
@@ -1243,7 +1243,7 @@
         "algorithm": "Multilevel",
         "success": true,
         "cut_weight": 13,
-        "time": 0.4236783981323242,
+        "time": 0.1351475715637207,
         "memory_mb": 0.0,
         "balance": 0.96,
         "error": null
@@ -1252,7 +1252,7 @@
         "algorithm": "FastMultilevel",
         "success": true,
         "cut_weight": 13,
-        "time": 0.10558867454528809,
+        "time": 0.1128685474395752,
         "memory_mb": 0.0,
         "balance": 0.96,
         "error": null
@@ -1276,7 +1276,7 @@
         "algorithm": "KL",
         "success": true,
         "cut_weight": 103,
-        "time": 4.382984399795532,
+        "time": 5.318823337554932,
         "memory_mb": 0.1710529327392578,
         "balance": 0.997920997920998,
         "error": null
@@ -1284,8 +1284,8 @@
       "Multilevel": {
         "algorithm": "Multilevel",
         "success": true,
-        "cut_weight": 103,
-        "time": 55.280861616134644,
+        "cut_weight": 98,
+        "time": 8.966472148895264,
         "memory_mb": 0.0,
         "balance": 0.997920997920998,
         "error": null
@@ -1294,7 +1294,7 @@
         "algorithm": "FastMultilevel",
         "success": true,
         "cut_weight": 108,
-        "time": 4.959790229797363,
+        "time": 4.7938597202301025,
         "memory_mb": 0.0,
         "balance": 0.997920997920998,
         "error": null
@@ -1318,7 +1318,7 @@
         "algorithm": "KL",
         "success": true,
         "cut_weight": 33,
-        "time": 0.5622124671936035,
+        "time": 0.5055532455444336,
         "memory_mb": 0.01169586181640625,
         "balance": 1.0,
         "error": null
@@ -1326,8 +1326,8 @@
       "Multilevel": {
         "algorithm": "Multilevel",
         "success": true,
-        "cut_weight": 33,
-        "time": 2.203333854675293,
+        "cut_weight": 21,
+        "time": 0.39388608932495117,
         "memory_mb": 0.0,
         "balance": 1.0,
         "error": null
@@ -1336,7 +1336,7 @@
         "algorithm": "FastMultilevel",
         "success": true,
         "cut_weight": 33,
-        "time": 0.5350539684295654,
+        "time": 0.5115854740142822,
         "memory_mb": 0.0,
         "balance": 1.0,
         "error": null
@@ -1360,7 +1360,7 @@
         "algorithm": "KL",
         "success": true,
         "cut_weight": 47,
-        "time": 5.559723615646362,
+        "time": 5.224170207977295,
         "memory_mb": 0.04175567626953125,
         "balance": 1.0,
         "error": null
@@ -1368,8 +1368,8 @@
       "Multilevel": {
         "algorithm": "Multilevel",
         "success": true,
-        "cut_weight": 47,
-        "time": 39.46252775192261,
+        "cut_weight": 53,
+        "time": 3.721729040145874,
         "memory_mb": 0.0,
         "balance": 1.0,
         "error": null
@@ -1378,7 +1378,7 @@
         "algorithm": "FastMultilevel",
         "success": true,
         "cut_weight": 83,
-        "time": 4.629734754562378,
+        "time": 4.221483469009399,
         "memory_mb": 0.0,
         "balance": 1.0,
         "error": null
@@ -1402,7 +1402,7 @@
         "algorithm": "KL",
         "success": true,
         "cut_weight": 180,
-        "time": 16.731637001037598,
+        "time": 16.040350198745728,
         "memory_mb": 1.168853759765625,
         "balance": 1.0,
         "error": null
@@ -1410,8 +1410,8 @@
       "Multilevel": {
         "algorithm": "Multilevel",
         "success": true,
-        "cut_weight": 182,
-        "time": 126.91367697715759,
+        "cut_weight": 190,
+        "time": 74.38194727897644,
         "memory_mb": 0.0,
         "balance": 1.0,
         "error": null
@@ -1420,7 +1420,7 @@
         "algorithm": "FastMultilevel",
         "success": true,
         "cut_weight": 258,
-        "time": 11.282471895217896,
+        "time": 11.827634811401367,
         "memory_mb": 0.0,
         "balance": 1.0,
         "error": null
@@ -1444,7 +1444,7 @@
         "algorithm": "KL",
         "success": true,
         "cut_weight": 26,
-        "time": 4.709596395492554,
+        "time": 5.052180767059326,
         "memory_mb": 0.04120635986328125,
         "balance": 1.0,
         "error": null
@@ -1452,8 +1452,8 @@
       "Multilevel": {
         "algorithm": "Multilevel",
         "success": true,
-        "cut_weight": 27,
-        "time": 14.330614805221558,
+        "cut_weight": 50,
+        "time": 0.826580286026001,
         "memory_mb": 0.0,
         "balance": 1.0,
         "error": null
@@ -1462,7 +1462,7 @@
         "algorithm": "FastMultilevel",
         "success": true,
         "cut_weight": 49,
-        "time": 2.8040645122528076,
+        "time": 2.671776294708252,
         "memory_mb": 0.0,
         "balance": 1.0,
         "error": null
@@ -1486,7 +1486,7 @@
         "algorithm": "KL",
         "success": true,
         "cut_weight": 148,
-        "time": 4.201819658279419,
+        "time": 4.324912071228027,
         "memory_mb": 0.36960601806640625,
         "balance": 1.0,
         "error": null
@@ -1494,8 +1494,8 @@
       "Multilevel": {
         "algorithm": "Multilevel",
         "success": true,
-        "cut_weight": 148,
-        "time": 70.71550440788269,
+        "cut_weight": 144,
+        "time": 20.04248046875,
         "memory_mb": 0.0,
         "balance": 1.0,
         "error": null
@@ -1504,7 +1504,7 @@
         "algorithm": "FastMultilevel",
         "success": true,
         "cut_weight": 147,
-        "time": 4.333287954330444,
+        "time": 5.160060405731201,
         "memory_mb": 0.0,
         "balance": 1.0,
         "error": null

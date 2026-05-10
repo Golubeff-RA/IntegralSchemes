@@ -145,6 +145,8 @@ class GraphCanvas:
         self._draw_vertices()
     
     def _draw_edges(self):
+        if (self.graph == None or self.graph.num_vertices > 100):
+            return
         for u, v, w in self.graph.edges():
             if u >= len(self.nodes) or v >= len(self.nodes):
                 continue
@@ -164,6 +166,8 @@ class GraphCanvas:
                 self.canvas.create_text(mx, my, text=str(w), fill='#888888', font=('Arial', 8))
     
     def _draw_vertices(self):
+        if (self.graph == None or self.graph.num_vertices > 100):
+            return
         for x, y, vid, part, color, vx, vy in self.nodes:
             sx, sy = self._transform(x, y)
             r = self.node_radius * (0.7 + self.graph.get_vertex_weight(vid) / 20)

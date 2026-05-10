@@ -334,7 +334,7 @@ class FastClusterGenerator(BaseGraphGenerator):
                 attempts += 1
             
             for u, v in edges:
-                w = random.randint(*self.weight_range)
+                w = random.randint((self.weight_range[0] + self.weight_range[1]) / 2, self.weight_range[1])
                 graph.add_edge(u, v, w)
     
     def _fast_inter_edges(self, graph: Graph, cluster_starts: List[int]):
@@ -373,7 +373,7 @@ class FastClusterGenerator(BaseGraphGenerator):
                     attempts += 1
                 
                 for u, v in edges:
-                    w = random.randint(*self.weight_range)
+                    w = random.randint(self.weight_range[0], (self.weight_range[0] + self.weight_range[1]) / 2)
                     graph.add_edge(u, v, w)
     
     def generate_ultra_fast(self) -> Graph:

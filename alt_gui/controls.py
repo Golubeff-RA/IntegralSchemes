@@ -174,22 +174,7 @@ class ControlsPanel(Frame):
             bg="#2c3e50",
             length=150,
         ).grid(row=row, column=1, padx=5, pady=2)
-
-        row += 1
-        Label(self.dynamic_frame, text="Inter prob:", bg="#2c3e50", fg="white").grid(
-            row=row, column=0, sticky=W, padx=5, pady=2
-        )
-        self.inter_var = DoubleVar(value=0.05)
-        Scale(
-            self.dynamic_frame,
-            from_=0.0,
-            to=0.3,
-            resolution=0.005,
-            variable=self.inter_var,
-            orient=HORIZONTAL,
-            bg="#2c3e50",
-            length=150,
-        ).grid(row=row, column=1, padx=5, pady=2)
+        
 
         self._add_weight_params(row + 1)
 
@@ -322,7 +307,6 @@ class ControlsPanel(Frame):
                 {
                     "clusters": int(self.c_entry.get()),
                     "intra_prob": self.intra_var.get(),
-                    "inter_prob": self.inter_var.get(),
                 }
             )
         elif gen_type == "FastCluster":

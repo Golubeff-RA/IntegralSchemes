@@ -22,7 +22,7 @@ from core.graph import Graph
 from core.partition import Partition
 from core.coarse_graph import CoarseGraph
 from .base_partitioner import PartitionerWithStats, PerformanceMetrics
-from .kernighan_lin import KernighanLin
+from .kernighan_lin import KernighanLin, FastKernighanLin
 
 
 @dataclass
@@ -87,7 +87,7 @@ class MultilevelPartitioner(PartitionerWithStats):
         if not self.levels:
             # Если стягивание не удалось, используем KL на исходном графе
             with self._stage("initial_partition"):
-                kl = KernighanLin(seed=self.seed)
+                kl = FastKernighanLin(seed=self.seed)
                 partition, _ = kl.partition(graph, balance_ratio)
             return partition
 
@@ -189,7 +189,7 @@ class MultilevelPartitioner(PartitionerWithStats):
             partition = self._random_partition(coarse_graph, balance_ratio, trial)
 
             # Улучшаем KL
-            kl = KernighanLin(max_passes=10, seed=self.seed + trial)
+            kl = FastKernighanLin(max_passes=10, seed=self.seed + trial)
             partition, _ = kl.partition(coarse_graph, balance_ratio)
 
             cut = partition.cut_weight(coarse_graph)
@@ -247,7 +247,7 @@ class MultilevelPartitioner(PartitionerWithStats):
 
             # 2. Улучшаем разбиение на текущем уровне
             for attempt in range(self.refinement_passes):
-                kl = KernighanLin(max_passes=5, seed=self.seed + attempt)
+                kl = FastKernighanLin(max_passes=5, seed=self.seed + attempt)
                 current_partition, _ = kl.partition(level.graph, balance_ratio)
 
                 cut = current_partition.cut_weight(level.graph)

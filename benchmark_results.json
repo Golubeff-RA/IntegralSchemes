@@ -1,0 +1,1514 @@
+[
+  {
+    "graph_name": "fast_cluster/fast_cluster_50",
+    "vertices": 50,
+    "edges": 400,
+    "density": 0.32653061224489793,
+    "vertex_weights": [
+      5,
+      8,
+      7,
+      8,
+      10
+    ],
+    "results": {
+      "KL": {
+        "algorithm": "KL",
+        "success": true,
+        "cut_weight": 114,
+        "time": 0.09328079223632812,
+        "memory_mb": 0.06798934936523438,
+        "balance": 1.0,
+        "error": null
+      },
+      "Multilevel": {
+        "algorithm": "Multilevel",
+        "success": true,
+        "cut_weight": 114,
+        "time": 0.36638712882995605,
+        "memory_mb": 0.0,
+        "balance": 1.0,
+        "error": null
+      },
+      "FastMultilevel": {
+        "algorithm": "FastMultilevel",
+        "success": true,
+        "cut_weight": 114,
+        "time": 0.07633423805236816,
+        "memory_mb": 0.0,
+        "balance": 1.0,
+        "error": null
+      }
+    }
+  },
+  {
+    "graph_name": "fast_cluster/fast_cluster_2000",
+    "vertices": 2000,
+    "edges": 16000,
+    "density": 0.0080040020010005,
+    "vertex_weights": [
+      4,
+      1,
+      9,
+      2,
+      7
+    ],
+    "results": {
+      "KL": {
+        "algorithm": "KL",
+        "success": true,
+        "cut_weight": 2588,
+        "time": 6.8264241218566895,
+        "memory_mb": 1.4210357666015625,
+        "balance": 1.0,
+        "error": null
+      },
+      "Multilevel": {
+        "algorithm": "Multilevel",
+        "success": true,
+        "cut_weight": 2588,
+        "time": 93.4847137928009,
+        "memory_mb": 0.0,
+        "balance": 1.0,
+        "error": null
+      },
+      "FastMultilevel": {
+        "algorithm": "FastMultilevel",
+        "success": true,
+        "cut_weight": 2587,
+        "time": 8.642366647720337,
+        "memory_mb": 0.0,
+        "balance": 1.0,
+        "error": null
+      }
+    }
+  },
+  {
+    "graph_name": "fast_cluster/fast_cluster_100",
+    "vertices": 100,
+    "edges": 800,
+    "density": 0.16161616161616163,
+    "vertex_weights": [
+      10,
+      2,
+      5,
+      9,
+      6
+    ],
+    "results": {
+      "KL": {
+        "algorithm": "KL",
+        "success": true,
+        "cut_weight": 314,
+        "time": 0.8252205848693848,
+        "memory_mb": 0.04108428955078125,
+        "balance": 1.0,
+        "error": null
+      },
+      "Multilevel": {
+        "algorithm": "Multilevel",
+        "success": true,
+        "cut_weight": 314,
+        "time": 3.053309679031372,
+        "memory_mb": 0.0,
+        "balance": 1.0,
+        "error": null
+      },
+      "FastMultilevel": {
+        "algorithm": "FastMultilevel",
+        "success": true,
+        "cut_weight": 314,
+        "time": 0.7304604053497314,
+        "memory_mb": 0.0,
+        "balance": 1.0,
+        "error": null
+      }
+    }
+  },
+  {
+    "graph_name": "fast_cluster/fast_cluster_500",
+    "vertices": 500,
+    "edges": 4000,
+    "density": 0.03206412825651302,
+    "vertex_weights": [
+      2,
+      7,
+      9,
+      1,
+      10
+    ],
+    "results": {
+      "KL": {
+        "algorithm": "KL",
+        "success": true,
+        "cut_weight": 756,
+        "time": 4.340498924255371,
+        "memory_mb": 0.33661651611328125,
+        "balance": 1.0,
+        "error": null
+      },
+      "Multilevel": {
+        "algorithm": "Multilevel",
+        "success": true,
+        "cut_weight": 756,
+        "time": 29.997165203094482,
+        "memory_mb": 0.0,
+        "balance": 1.0,
+        "error": null
+      },
+      "FastMultilevel": {
+        "algorithm": "FastMultilevel",
+        "success": true,
+        "cut_weight": 765,
+        "time": 3.2829456329345703,
+        "memory_mb": 0.0,
+        "balance": 1.0,
+        "error": null
+      }
+    }
+  },
+  {
+    "graph_name": "fast_cluster/fast_cluster_200",
+    "vertices": 200,
+    "edges": 1600,
+    "density": 0.08040201005025126,
+    "vertex_weights": [
+      3,
+      4,
+      3,
+      2,
+      7
+    ],
+    "results": {
+      "KL": {
+        "algorithm": "KL",
+        "success": true,
+        "cut_weight": 272,
+        "time": 2.064842939376831,
+        "memory_mb": 0.1584930419921875,
+        "balance": 1.0,
+        "error": null
+      },
+      "Multilevel": {
+        "algorithm": "Multilevel",
+        "success": true,
+        "cut_weight": 272,
+        "time": 9.091516494750977,
+        "memory_mb": 0.0,
+        "balance": 1.0,
+        "error": null
+      },
+      "FastMultilevel": {
+        "algorithm": "FastMultilevel",
+        "success": true,
+        "cut_weight": 272,
+        "time": 2.185288429260254,
+        "memory_mb": 0.0,
+        "balance": 1.0,
+        "error": null
+      }
+    }
+  },
+  {
+    "graph_name": "fast_cluster/fast_cluster_1000",
+    "vertices": 1000,
+    "edges": 8000,
+    "density": 0.016016016016016016,
+    "vertex_weights": [
+      4,
+      2,
+      6,
+      3,
+      7
+    ],
+    "results": {
+      "KL": {
+        "algorithm": "KL",
+        "success": true,
+        "cut_weight": 1517,
+        "time": 4.945821046829224,
+        "memory_mb": 0.9520339965820312,
+        "balance": 1.0,
+        "error": null
+      },
+      "Multilevel": {
+        "algorithm": "Multilevel",
+        "success": true,
+        "cut_weight": 1517,
+        "time": 59.43275451660156,
+        "memory_mb": 0.0,
+        "balance": 1.0,
+        "error": null
+      },
+      "FastMultilevel": {
+        "algorithm": "FastMultilevel",
+        "success": true,
+        "cut_weight": 1518,
+        "time": 4.026697397232056,
+        "memory_mb": 0.0,
+        "balance": 1.0,
+        "error": null
+      }
+    }
+  },
+  {
+    "graph_name": "fast_cluster/fast_cluster_5000",
+    "vertices": 5000,
+    "edges": 40000,
+    "density": 0.003200640128025605,
+    "vertex_weights": [
+      7,
+      9,
+      4,
+      5,
+      5
+    ],
+    "results": {
+      "KL": {
+        "algorithm": "KL",
+        "success": true,
+        "cut_weight": 6098,
+        "time": 28.462377309799194,
+        "memory_mb": 4.283355712890625,
+        "balance": 1.0,
+        "error": null
+      },
+      "Multilevel": {
+        "algorithm": "Multilevel",
+        "success": true,
+        "cut_weight": 31291,
+        "time": 174.24135518074036,
+        "memory_mb": 0.0,
+        "balance": 1.0,
+        "error": null
+      },
+      "FastMultilevel": {
+        "algorithm": "FastMultilevel",
+        "success": true,
+        "cut_weight": 31380,
+        "time": 12.193989276885986,
+        "memory_mb": 0.0,
+        "balance": 1.0,
+        "error": null
+      }
+    }
+  },
+  {
+    "graph_name": "barabasi_albert/barabasi_albert_1000",
+    "vertices": 1000,
+    "edges": 4985,
+    "density": 0.00997997997997998,
+    "vertex_weights": [
+      10,
+      1,
+      8,
+      9,
+      1
+    ],
+    "results": {
+      "KL": {
+        "algorithm": "KL",
+        "success": true,
+        "cut_weight": 4230,
+        "time": 4.32286262512207,
+        "memory_mb": 0.90216064453125,
+        "balance": 1.0,
+        "error": null
+      },
+      "Multilevel": {
+        "algorithm": "Multilevel",
+        "success": true,
+        "cut_weight": 4230,
+        "time": 57.67125201225281,
+        "memory_mb": 0.0,
+        "balance": 1.0,
+        "error": null
+      },
+      "FastMultilevel": {
+        "algorithm": "FastMultilevel",
+        "success": true,
+        "cut_weight": 4199,
+        "time": 4.889983415603638,
+        "memory_mb": 0.0,
+        "balance": 1.0,
+        "error": null
+      }
+    }
+  },
+  {
+    "graph_name": "barabasi_albert/barabasi_albert_5000",
+    "vertices": 5000,
+    "edges": 24985,
+    "density": 0.0019991998399679937,
+    "vertex_weights": [
+      6,
+      4,
+      6,
+      1,
+      6
+    ],
+    "results": {
+      "KL": {
+        "algorithm": "KL",
+        "success": true,
+        "cut_weight": 21695,
+        "time": 29.833747148513794,
+        "memory_mb": 3.59735107421875,
+        "balance": 1.0,
+        "error": null
+      },
+      "Multilevel": {
+        "algorithm": "Multilevel",
+        "success": true,
+        "cut_weight": 25073,
+        "time": 158.00765323638916,
+        "memory_mb": 0.0,
+        "balance": 1.0,
+        "error": null
+      },
+      "FastMultilevel": {
+        "algorithm": "FastMultilevel",
+        "success": true,
+        "cut_weight": 25077,
+        "time": 12.273877620697021,
+        "memory_mb": 0.0,
+        "balance": 1.0,
+        "error": null
+      }
+    }
+  },
+  {
+    "graph_name": "barabasi_albert/barabasi_albert_50",
+    "vertices": 50,
+    "edges": 100,
+    "density": 0.08163265306122448,
+    "vertex_weights": [
+      9,
+      2,
+      7,
+      9,
+      6
+    ],
+    "results": {
+      "KL": {
+        "algorithm": "KL",
+        "success": true,
+        "cut_weight": 50,
+        "time": 0.2346959114074707,
+        "memory_mb": 0.011631011962890625,
+        "balance": 1.0,
+        "error": null
+      },
+      "Multilevel": {
+        "algorithm": "Multilevel",
+        "success": true,
+        "cut_weight": 51,
+        "time": 0.6911120414733887,
+        "memory_mb": 0.0,
+        "balance": 1.0,
+        "error": null
+      },
+      "FastMultilevel": {
+        "algorithm": "FastMultilevel",
+        "success": true,
+        "cut_weight": 50,
+        "time": 0.21001410484313965,
+        "memory_mb": 0.0,
+        "balance": 1.0,
+        "error": null
+      }
+    }
+  },
+  {
+    "graph_name": "barabasi_albert/barabasi_albert_500",
+    "vertices": 500,
+    "edges": 2485,
+    "density": 0.019919839679358717,
+    "vertex_weights": [
+      7,
+      10,
+      2,
+      2,
+      10
+    ],
+    "results": {
+      "KL": {
+        "algorithm": "KL",
+        "success": true,
+        "cut_weight": 2153,
+        "time": 4.221878290176392,
+        "memory_mb": 0.2237701416015625,
+        "balance": 1.0,
+        "error": null
+      },
+      "Multilevel": {
+        "algorithm": "Multilevel",
+        "success": true,
+        "cut_weight": 2153,
+        "time": 55.12963271141052,
+        "memory_mb": 0.0,
+        "balance": 1.0,
+        "error": null
+      },
+      "FastMultilevel": {
+        "algorithm": "FastMultilevel",
+        "success": true,
+        "cut_weight": 2095,
+        "time": 5.747655153274536,
+        "memory_mb": 0.0,
+        "balance": 1.0,
+        "error": null
+      }
+    }
+  },
+  {
+    "graph_name": "barabasi_albert/barabasi_albert_2000",
+    "vertices": 2000,
+    "edges": 9985,
+    "density": 0.004994997498749374,
+    "vertex_weights": [
+      5,
+      8,
+      8,
+      10,
+      5
+    ],
+    "results": {
+      "KL": {
+        "algorithm": "KL",
+        "success": true,
+        "cut_weight": 8568,
+        "time": 9.325944900512695,
+        "memory_mb": 1.0749893188476562,
+        "balance": 1.0,
+        "error": null
+      },
+      "Multilevel": {
+        "algorithm": "Multilevel",
+        "success": true,
+        "cut_weight": 8680,
+        "time": 76.33531022071838,
+        "memory_mb": 0.0,
+        "balance": 1.0,
+        "error": null
+      },
+      "FastMultilevel": {
+        "algorithm": "FastMultilevel",
+        "success": true,
+        "cut_weight": 8770,
+        "time": 5.4775800704956055,
+        "memory_mb": 0.0,
+        "balance": 1.0,
+        "error": null
+      }
+    }
+  },
+  {
+    "graph_name": "barabasi_albert/barabasi_albert_200",
+    "vertices": 200,
+    "edges": 985,
+    "density": 0.04949748743718593,
+    "vertex_weights": [
+      10,
+      5,
+      3,
+      1,
+      4
+    ],
+    "results": {
+      "KL": {
+        "algorithm": "KL",
+        "success": true,
+        "cut_weight": 863,
+        "time": 2.7139997482299805,
+        "memory_mb": 0.0413360595703125,
+        "balance": 1.0,
+        "error": null
+      },
+      "Multilevel": {
+        "algorithm": "Multilevel",
+        "success": true,
+        "cut_weight": 863,
+        "time": 17.664835929870605,
+        "memory_mb": 0.0,
+        "balance": 1.0,
+        "error": null
+      },
+      "FastMultilevel": {
+        "algorithm": "FastMultilevel",
+        "success": true,
+        "cut_weight": 858,
+        "time": 3.7153711318969727,
+        "memory_mb": 0.0,
+        "balance": 1.0,
+        "error": null
+      }
+    }
+  },
+  {
+    "graph_name": "barabasi_albert/barabasi_albert_100",
+    "vertices": 100,
+    "edges": 485,
+    "density": 0.09797979797979799,
+    "vertex_weights": [
+      9,
+      1,
+      8,
+      8,
+      9
+    ],
+    "results": {
+      "KL": {
+        "algorithm": "KL",
+        "success": true,
+        "cut_weight": 434,
+        "time": 1.0190074443817139,
+        "memory_mb": 0.04120635986328125,
+        "balance": 1.0,
+        "error": null
+      },
+      "Multilevel": {
+        "algorithm": "Multilevel",
+        "success": true,
+        "cut_weight": 434,
+        "time": 5.328902959823608,
+        "memory_mb": 0.0,
+        "balance": 1.0,
+        "error": null
+      },
+      "FastMultilevel": {
+        "algorithm": "FastMultilevel",
+        "success": true,
+        "cut_weight": 434,
+        "time": 1.052485466003418,
+        "memory_mb": 0.0,
+        "balance": 1.0,
+        "error": null
+      }
+    }
+  },
+  {
+    "graph_name": "cluster/cluster_500",
+    "vertices": 500,
+    "edges": 5000,
+    "density": 0.04008016032064128,
+    "vertex_weights": [
+      1,
+      4,
+      5,
+      1,
+      9
+    ],
+    "results": {
+      "KL": {
+        "algorithm": "KL",
+        "success": true,
+        "cut_weight": 1047,
+        "time": 2.194347620010376,
+        "memory_mb": 0.8796463012695312,
+        "balance": 1.0,
+        "error": null
+      },
+      "Multilevel": {
+        "algorithm": "Multilevel",
+        "success": true,
+        "cut_weight": 1047,
+        "time": 28.404237270355225,
+        "memory_mb": 0.0,
+        "balance": 1.0,
+        "error": null
+      },
+      "FastMultilevel": {
+        "algorithm": "FastMultilevel",
+        "success": true,
+        "cut_weight": 1028,
+        "time": 3.7946979999542236,
+        "memory_mb": 0.0,
+        "balance": 1.0,
+        "error": null
+      }
+    }
+  },
+  {
+    "graph_name": "cluster/cluster_50",
+    "vertices": 50,
+    "edges": 500,
+    "density": 0.40816326530612246,
+    "vertex_weights": [
+      5,
+      5,
+      1,
+      7,
+      5
+    ],
+    "results": {
+      "KL": {
+        "algorithm": "KL",
+        "success": true,
+        "cut_weight": 150,
+        "time": 0.10611367225646973,
+        "memory_mb": 0.040927886962890625,
+        "balance": 1.0,
+        "error": null
+      },
+      "Multilevel": {
+        "algorithm": "Multilevel",
+        "success": true,
+        "cut_weight": 150,
+        "time": 0.465778112411499,
+        "memory_mb": 0.0,
+        "balance": 1.0,
+        "error": null
+      },
+      "FastMultilevel": {
+        "algorithm": "FastMultilevel",
+        "success": true,
+        "cut_weight": 150,
+        "time": 0.08136272430419922,
+        "memory_mb": 0.0,
+        "balance": 1.0,
+        "error": null
+      }
+    }
+  },
+  {
+    "graph_name": "cluster/cluster_2000",
+    "vertices": 2000,
+    "edges": 20000,
+    "density": 0.010005002501250625,
+    "vertex_weights": [
+      10,
+      10,
+      2,
+      7,
+      3
+    ],
+    "results": {
+      "KL": {
+        "algorithm": "KL",
+        "success": true,
+        "cut_weight": 3408,
+        "time": 7.277352333068848,
+        "memory_mb": 3.6053085327148438,
+        "balance": 1.0,
+        "error": null
+      },
+      "Multilevel": {
+        "algorithm": "Multilevel",
+        "success": true,
+        "cut_weight": 3408,
+        "time": 110.7597222328186,
+        "memory_mb": 0.0,
+        "balance": 1.0,
+        "error": null
+      },
+      "FastMultilevel": {
+        "algorithm": "FastMultilevel",
+        "success": true,
+        "cut_weight": 3229,
+        "time": 8.222278594970703,
+        "memory_mb": 0.0,
+        "balance": 1.0,
+        "error": null
+      }
+    }
+  },
+  {
+    "graph_name": "cluster/cluster_200",
+    "vertices": 200,
+    "edges": 2000,
+    "density": 0.10050251256281408,
+    "vertex_weights": [
+      6,
+      1,
+      1,
+      8,
+      5
+    ],
+    "results": {
+      "KL": {
+        "algorithm": "KL",
+        "success": true,
+        "cut_weight": 340,
+        "time": 2.3419971466064453,
+        "memory_mb": 0.15886688232421875,
+        "balance": 1.0,
+        "error": null
+      },
+      "Multilevel": {
+        "algorithm": "Multilevel",
+        "success": true,
+        "cut_weight": 340,
+        "time": 10.368093490600586,
+        "memory_mb": 0.0,
+        "balance": 1.0,
+        "error": null
+      },
+      "FastMultilevel": {
+        "algorithm": "FastMultilevel",
+        "success": true,
+        "cut_weight": 353,
+        "time": 2.500804901123047,
+        "memory_mb": 0.0,
+        "balance": 1.0,
+        "error": null
+      }
+    }
+  },
+  {
+    "graph_name": "cluster/cluster_1000",
+    "vertices": 1000,
+    "edges": 10000,
+    "density": 0.02002002002002002,
+    "vertex_weights": [
+      9,
+      7,
+      8,
+      7,
+      7
+    ],
+    "results": {
+      "KL": {
+        "algorithm": "KL",
+        "success": true,
+        "cut_weight": 1813,
+        "time": 4.212385654449463,
+        "memory_mb": 1.0590667724609375,
+        "balance": 1.0,
+        "error": null
+      },
+      "Multilevel": {
+        "algorithm": "Multilevel",
+        "success": true,
+        "cut_weight": 1813,
+        "time": 69.75824451446533,
+        "memory_mb": 0.0,
+        "balance": 1.0,
+        "error": null
+      },
+      "FastMultilevel": {
+        "algorithm": "FastMultilevel",
+        "success": true,
+        "cut_weight": 1699,
+        "time": 4.518434762954712,
+        "memory_mb": 0.0,
+        "balance": 1.0,
+        "error": null
+      }
+    }
+  },
+  {
+    "graph_name": "cluster/cluster_5000",
+    "vertices": 5000,
+    "edges": 50000,
+    "density": 0.004000800160032006,
+    "vertex_weights": [
+      2,
+      3,
+      5,
+      8,
+      10
+    ],
+    "results": {
+      "KL": {
+        "algorithm": "KL",
+        "success": true,
+        "cut_weight": 7910,
+        "time": 26.554546117782593,
+        "memory_mb": 4.819488525390625,
+        "balance": 1.0,
+        "error": null
+      },
+      "Multilevel": {
+        "algorithm": "Multilevel",
+        "success": true,
+        "cut_weight": 26345,
+        "time": 206.11205005645752,
+        "memory_mb": 0.0,
+        "balance": 1.0,
+        "error": null
+      },
+      "FastMultilevel": {
+        "algorithm": "FastMultilevel",
+        "success": true,
+        "cut_weight": 30612,
+        "time": 14.768510341644287,
+        "memory_mb": 0.0,
+        "balance": 1.0,
+        "error": null
+      }
+    }
+  },
+  {
+    "graph_name": "cluster/cluster_100",
+    "vertices": 100,
+    "edges": 1000,
+    "density": 0.20202020202020202,
+    "vertex_weights": [
+      4,
+      3,
+      6,
+      10,
+      6
+    ],
+    "results": {
+      "KL": {
+        "algorithm": "KL",
+        "success": true,
+        "cut_weight": 421,
+        "time": 0.7544829845428467,
+        "memory_mb": 0.04108428955078125,
+        "balance": 1.0,
+        "error": null
+      },
+      "Multilevel": {
+        "algorithm": "Multilevel",
+        "success": true,
+        "cut_weight": 421,
+        "time": 2.7575087547302246,
+        "memory_mb": 0.0,
+        "balance": 1.0,
+        "error": null
+      },
+      "FastMultilevel": {
+        "algorithm": "FastMultilevel",
+        "success": true,
+        "cut_weight": 421,
+        "time": 0.695871114730835,
+        "memory_mb": 0.0,
+        "balance": 1.0,
+        "error": null
+      }
+    }
+  },
+  {
+    "graph_name": "complete/complete_50",
+    "vertices": 50,
+    "edges": 1225,
+    "density": 1.0,
+    "vertex_weights": [
+      3,
+      4,
+      1,
+      10,
+      4
+    ],
+    "results": {
+      "KL": {
+        "algorithm": "KL",
+        "success": true,
+        "cut_weight": 1733,
+        "time": 0.2959408760070801,
+        "memory_mb": 0.041019439697265625,
+        "balance": 1.0,
+        "error": null
+      },
+      "Multilevel": {
+        "algorithm": "Multilevel",
+        "success": true,
+        "cut_weight": 1733,
+        "time": 1.9176161289215088,
+        "memory_mb": 0.0,
+        "balance": 1.0,
+        "error": null
+      },
+      "FastMultilevel": {
+        "algorithm": "FastMultilevel",
+        "success": true,
+        "cut_weight": 1733,
+        "time": 0.2980475425720215,
+        "memory_mb": 0.0,
+        "balance": 1.0,
+        "error": null
+      }
+    }
+  },
+  {
+    "graph_name": "path/path_100",
+    "vertices": 100,
+    "edges": 99,
+    "density": 0.02,
+    "vertex_weights": [
+      2,
+      10,
+      1,
+      4,
+      8
+    ],
+    "results": {
+      "KL": {
+        "algorithm": "KL",
+        "success": true,
+        "cut_weight": 2,
+        "time": 0.17066264152526855,
+        "memory_mb": 0.0115966796875,
+        "balance": 1.0,
+        "error": null
+      },
+      "Multilevel": {
+        "algorithm": "Multilevel",
+        "success": true,
+        "cut_weight": 2,
+        "time": 0.7494785785675049,
+        "memory_mb": 0.0,
+        "balance": 1.0,
+        "error": null
+      },
+      "FastMultilevel": {
+        "algorithm": "FastMultilevel",
+        "success": true,
+        "cut_weight": 2,
+        "time": 0.15953278541564941,
+        "memory_mb": 0.0,
+        "balance": 1.0,
+        "error": null
+      }
+    }
+  },
+  {
+    "graph_name": "path/path_1000",
+    "vertices": 1000,
+    "edges": 999,
+    "density": 0.002,
+    "vertex_weights": [
+      7,
+      9,
+      7,
+      2,
+      5
+    ],
+    "results": {
+      "KL": {
+        "algorithm": "KL",
+        "success": true,
+        "cut_weight": 2,
+        "time": 0.5691938400268555,
+        "memory_mb": 0.0600738525390625,
+        "balance": 1.0,
+        "error": null
+      },
+      "Multilevel": {
+        "algorithm": "Multilevel",
+        "success": true,
+        "cut_weight": 2,
+        "time": 19.873122215270996,
+        "memory_mb": 0.0,
+        "balance": 1.0,
+        "error": null
+      },
+      "FastMultilevel": {
+        "algorithm": "FastMultilevel",
+        "success": true,
+        "cut_weight": 2,
+        "time": 0.8885593414306641,
+        "memory_mb": 0.0,
+        "balance": 1.0,
+        "error": null
+      }
+    }
+  },
+  {
+    "graph_name": "path/path_500",
+    "vertices": 500,
+    "edges": 499,
+    "density": 0.004,
+    "vertex_weights": [
+      7,
+      8,
+      8,
+      5,
+      6
+    ],
+    "results": {
+      "KL": {
+        "algorithm": "KL",
+        "success": true,
+        "cut_weight": 1,
+        "time": 1.2360289096832275,
+        "memory_mb": 0.04328155517578125,
+        "balance": 1.0,
+        "error": null
+      },
+      "Multilevel": {
+        "algorithm": "Multilevel",
+        "success": true,
+        "cut_weight": 1,
+        "time": 16.945860385894775,
+        "memory_mb": 0.0,
+        "balance": 1.0,
+        "error": null
+      },
+      "FastMultilevel": {
+        "algorithm": "FastMultilevel",
+        "success": true,
+        "cut_weight": 1,
+        "time": 1.2374076843261719,
+        "memory_mb": 0.0,
+        "balance": 1.0,
+        "error": null
+      }
+    }
+  },
+  {
+    "graph_name": "path/path_50",
+    "vertices": 50,
+    "edges": 49,
+    "density": 0.04,
+    "vertex_weights": [
+      1,
+      5,
+      7,
+      4,
+      6
+    ],
+    "results": {
+      "KL": {
+        "algorithm": "KL",
+        "success": true,
+        "cut_weight": 2,
+        "time": 0.05441021919250488,
+        "memory_mb": 0.004276275634765625,
+        "balance": 1.0,
+        "error": null
+      },
+      "Multilevel": {
+        "algorithm": "Multilevel",
+        "success": true,
+        "cut_weight": 2,
+        "time": 0.2778897285461426,
+        "memory_mb": 0.0,
+        "balance": 1.0,
+        "error": null
+      },
+      "FastMultilevel": {
+        "algorithm": "FastMultilevel",
+        "success": true,
+        "cut_weight": 2,
+        "time": 0.04868149757385254,
+        "memory_mb": 0.0,
+        "balance": 1.0,
+        "error": null
+      }
+    }
+  },
+  {
+    "graph_name": "path/path_2000",
+    "vertices": 2000,
+    "edges": 1999,
+    "density": 0.001,
+    "vertex_weights": [
+      6,
+      4,
+      2,
+      4,
+      4
+    ],
+    "results": {
+      "KL": {
+        "algorithm": "KL",
+        "success": true,
+        "cut_weight": 3,
+        "time": 1.6669471263885498,
+        "memory_mb": 0.19162750244140625,
+        "balance": 1.0,
+        "error": null
+      },
+      "Multilevel": {
+        "algorithm": "Multilevel",
+        "success": true,
+        "cut_weight": 3,
+        "time": 32.68520545959473,
+        "memory_mb": 0.0,
+        "balance": 1.0,
+        "error": null
+      },
+      "FastMultilevel": {
+        "algorithm": "FastMultilevel",
+        "success": true,
+        "cut_weight": 3,
+        "time": 2.74648380279541,
+        "memory_mb": 0.0,
+        "balance": 1.0,
+        "error": null
+      }
+    }
+  },
+  {
+    "graph_name": "path/path_5000",
+    "vertices": 5000,
+    "edges": 4999,
+    "density": 0.0004,
+    "vertex_weights": [
+      1,
+      3,
+      9,
+      10,
+      8
+    ],
+    "results": {
+      "KL": {
+        "algorithm": "KL",
+        "success": true,
+        "cut_weight": 2,
+        "time": 3.3847296237945557,
+        "memory_mb": 1.0240936279296875,
+        "balance": 1.0,
+        "error": null
+      },
+      "Multilevel": {
+        "algorithm": "Multilevel",
+        "success": true,
+        "cut_weight": 2,
+        "time": 56.7417151927948,
+        "memory_mb": 0.0,
+        "balance": 1.0,
+        "error": null
+      },
+      "FastMultilevel": {
+        "algorithm": "FastMultilevel",
+        "success": true,
+        "cut_weight": 2,
+        "time": 3.696774482727051,
+        "memory_mb": 0.0,
+        "balance": 1.0,
+        "error": null
+      }
+    }
+  },
+  {
+    "graph_name": "path/path_200",
+    "vertices": 200,
+    "edges": 199,
+    "density": 0.01,
+    "vertex_weights": [
+      3,
+      8,
+      10,
+      10,
+      4
+    ],
+    "results": {
+      "KL": {
+        "algorithm": "KL",
+        "success": true,
+        "cut_weight": 1,
+        "time": 1.2052719593048096,
+        "memory_mb": 0.0118865966796875,
+        "balance": 1.0,
+        "error": null
+      },
+      "Multilevel": {
+        "algorithm": "Multilevel",
+        "success": true,
+        "cut_weight": 1,
+        "time": 6.986895322799683,
+        "memory_mb": 0.0,
+        "balance": 1.0,
+        "error": null
+      },
+      "FastMultilevel": {
+        "algorithm": "FastMultilevel",
+        "success": true,
+        "cut_weight": 1,
+        "time": 1.8276147842407227,
+        "memory_mb": 0.0,
+        "balance": 1.0,
+        "error": null
+      }
+    }
+  },
+  {
+    "graph_name": "grid/grid_49",
+    "vertices": 49,
+    "edges": 84,
+    "density": 0.07142857142857142,
+    "vertex_weights": [
+      2,
+      3,
+      3,
+      1,
+      4
+    ],
+    "results": {
+      "KL": {
+        "algorithm": "KL",
+        "success": true,
+        "cut_weight": 13,
+        "time": 0.09486532211303711,
+        "memory_mb": 0.011598587036132812,
+        "balance": 0.96,
+        "error": null
+      },
+      "Multilevel": {
+        "algorithm": "Multilevel",
+        "success": true,
+        "cut_weight": 13,
+        "time": 0.4236783981323242,
+        "memory_mb": 0.0,
+        "balance": 0.96,
+        "error": null
+      },
+      "FastMultilevel": {
+        "algorithm": "FastMultilevel",
+        "success": true,
+        "cut_weight": 13,
+        "time": 0.10558867454528809,
+        "memory_mb": 0.0,
+        "balance": 0.96,
+        "error": null
+      }
+    }
+  },
+  {
+    "graph_name": "grid/grid_961",
+    "vertices": 961,
+    "edges": 1860,
+    "density": 0.004032258064516129,
+    "vertex_weights": [
+      8,
+      6,
+      2,
+      3,
+      3
+    ],
+    "results": {
+      "KL": {
+        "algorithm": "KL",
+        "success": true,
+        "cut_weight": 103,
+        "time": 4.382984399795532,
+        "memory_mb": 0.1710529327392578,
+        "balance": 0.997920997920998,
+        "error": null
+      },
+      "Multilevel": {
+        "algorithm": "Multilevel",
+        "success": true,
+        "cut_weight": 103,
+        "time": 55.280861616134644,
+        "memory_mb": 0.0,
+        "balance": 0.997920997920998,
+        "error": null
+      },
+      "FastMultilevel": {
+        "algorithm": "FastMultilevel",
+        "success": true,
+        "cut_weight": 108,
+        "time": 4.959790229797363,
+        "memory_mb": 0.0,
+        "balance": 0.997920997920998,
+        "error": null
+      }
+    }
+  },
+  {
+    "graph_name": "grid/grid_100",
+    "vertices": 100,
+    "edges": 180,
+    "density": 0.03636363636363636,
+    "vertex_weights": [
+      9,
+      3,
+      8,
+      10,
+      7
+    ],
+    "results": {
+      "KL": {
+        "algorithm": "KL",
+        "success": true,
+        "cut_weight": 33,
+        "time": 0.5622124671936035,
+        "memory_mb": 0.01169586181640625,
+        "balance": 1.0,
+        "error": null
+      },
+      "Multilevel": {
+        "algorithm": "Multilevel",
+        "success": true,
+        "cut_weight": 33,
+        "time": 2.203333854675293,
+        "memory_mb": 0.0,
+        "balance": 1.0,
+        "error": null
+      },
+      "FastMultilevel": {
+        "algorithm": "FastMultilevel",
+        "success": true,
+        "cut_weight": 33,
+        "time": 0.5350539684295654,
+        "memory_mb": 0.0,
+        "balance": 1.0,
+        "error": null
+      }
+    }
+  },
+  {
+    "graph_name": "grid/grid_484",
+    "vertices": 484,
+    "edges": 924,
+    "density": 0.007905138339920948,
+    "vertex_weights": [
+      2,
+      4,
+      5,
+      6,
+      5
+    ],
+    "results": {
+      "KL": {
+        "algorithm": "KL",
+        "success": true,
+        "cut_weight": 47,
+        "time": 5.559723615646362,
+        "memory_mb": 0.04175567626953125,
+        "balance": 1.0,
+        "error": null
+      },
+      "Multilevel": {
+        "algorithm": "Multilevel",
+        "success": true,
+        "cut_weight": 47,
+        "time": 39.46252775192261,
+        "memory_mb": 0.0,
+        "balance": 1.0,
+        "error": null
+      },
+      "FastMultilevel": {
+        "algorithm": "FastMultilevel",
+        "success": true,
+        "cut_weight": 83,
+        "time": 4.629734754562378,
+        "memory_mb": 0.0,
+        "balance": 1.0,
+        "error": null
+      }
+    }
+  },
+  {
+    "graph_name": "grid/grid_4900",
+    "vertices": 4900,
+    "edges": 9660,
+    "density": 0.0008048289738430583,
+    "vertex_weights": [
+      5,
+      7,
+      10,
+      8,
+      8
+    ],
+    "results": {
+      "KL": {
+        "algorithm": "KL",
+        "success": true,
+        "cut_weight": 180,
+        "time": 16.731637001037598,
+        "memory_mb": 1.168853759765625,
+        "balance": 1.0,
+        "error": null
+      },
+      "Multilevel": {
+        "algorithm": "Multilevel",
+        "success": true,
+        "cut_weight": 182,
+        "time": 126.91367697715759,
+        "memory_mb": 0.0,
+        "balance": 1.0,
+        "error": null
+      },
+      "FastMultilevel": {
+        "algorithm": "FastMultilevel",
+        "success": true,
+        "cut_weight": 258,
+        "time": 11.282471895217896,
+        "memory_mb": 0.0,
+        "balance": 1.0,
+        "error": null
+      }
+    }
+  },
+  {
+    "graph_name": "grid/grid_196",
+    "vertices": 196,
+    "edges": 364,
+    "density": 0.01904761904761905,
+    "vertex_weights": [
+      8,
+      1,
+      5,
+      5,
+      9
+    ],
+    "results": {
+      "KL": {
+        "algorithm": "KL",
+        "success": true,
+        "cut_weight": 26,
+        "time": 4.709596395492554,
+        "memory_mb": 0.04120635986328125,
+        "balance": 1.0,
+        "error": null
+      },
+      "Multilevel": {
+        "algorithm": "Multilevel",
+        "success": true,
+        "cut_weight": 27,
+        "time": 14.330614805221558,
+        "memory_mb": 0.0,
+        "balance": 1.0,
+        "error": null
+      },
+      "FastMultilevel": {
+        "algorithm": "FastMultilevel",
+        "success": true,
+        "cut_weight": 49,
+        "time": 2.8040645122528076,
+        "memory_mb": 0.0,
+        "balance": 1.0,
+        "error": null
+      }
+    }
+  },
+  {
+    "graph_name": "grid/grid_1936",
+    "vertices": 1936,
+    "edges": 3784,
+    "density": 0.00202020202020202,
+    "vertex_weights": [
+      9,
+      10,
+      5,
+      4,
+      5
+    ],
+    "results": {
+      "KL": {
+        "algorithm": "KL",
+        "success": true,
+        "cut_weight": 148,
+        "time": 4.201819658279419,
+        "memory_mb": 0.36960601806640625,
+        "balance": 1.0,
+        "error": null
+      },
+      "Multilevel": {
+        "algorithm": "Multilevel",
+        "success": true,
+        "cut_weight": 148,
+        "time": 70.71550440788269,
+        "memory_mb": 0.0,
+        "balance": 1.0,
+        "error": null
+      },
+      "FastMultilevel": {
+        "algorithm": "FastMultilevel",
+        "success": true,
+        "cut_weight": 147,
+        "time": 4.333287954330444,
+        "memory_mb": 0.0,
+        "balance": 1.0,
+        "error": null
+      }
+    }
+  }
+]

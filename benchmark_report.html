@@ -1,0 +1,464 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>Graph Partitioning Benchmark Report</title>
+    <style>
+        body { font-family: Arial, sans-serif; margin: 20px; background: #1e1e1e; color: #d4d4d4; }
+        h1, h2 { color: #3498db; }
+        table { border-collapse: collapse; width: 100%; margin: 20px 0; }
+        th, td { border: 1px solid #555; padding: 8px; text-align: left; }
+        th { background-color: #2c3e50; color: #3498db; }
+        tr:nth-child(even) { background-color: #2a2a2a; }
+        .success { color: #2ecc71; }
+        .failed { color: #e74c3c; }
+        .best { background-color: #27ae60; color: white; }
+        .summary { background-color: #2c3e50; padding: 10px; border-radius: 5px; margin: 20px 0; }
+        .metric { display: inline-block; margin: 0 20px; }
+        .metric-value { font-size: 24px; font-weight: bold; color: #3498db; }
+    </style>
+</head>
+<body>
+    <h1>📊 Graph Partitioning Benchmark Report</h1>
+    <p>Generated: 2026-05-07 23:10:22</p>
+    
+    <div class="summary">
+        <div class="metric">
+            <div>Total Graphs</div>
+            <div class="metric-value">36</div>
+        </div>
+        <div class="metric">
+            <div>Algorithms</div>
+            <div class="metric-value">3</div>
+        </div>
+    </div>
+    
+    <h2>📈 Results by Graph</h2>
+    <table>
+        <thead>
+            <tr><th>Graph</th><th>Vertices</th><th>Edges</th><th>Density</th><th>KL (cut)</th><th>KL (time)</th><th>Multilevel (cut)</th><th>Multilevel (time)</th><th>FastMultilevel (cut)</th><th>FastMultilevel (time)</th></tr></thead><tbody>
+            <tr>
+                <td>fast_cluster/fast_cluster_50</td>
+                <td>50</td>
+                <td>400</td>
+                <td>0.326531</td>
+                <td class="best">114</td>
+                <td>0.0933s</td>
+                <td class="best">114</td>
+                <td>0.3664s</td>
+                <td class="best">114</td>
+                <td>0.0763s</td></tr>
+            <tr>
+                <td>fast_cluster/fast_cluster_2000</td>
+                <td>2000</td>
+                <td>16000</td>
+                <td>0.008004</td>
+                <td class="">2588</td>
+                <td>6.8264s</td>
+                <td class="">2588</td>
+                <td>93.4847s</td>
+                <td class="best">2587</td>
+                <td>8.6424s</td></tr>
+            <tr>
+                <td>fast_cluster/fast_cluster_100</td>
+                <td>100</td>
+                <td>800</td>
+                <td>0.161616</td>
+                <td class="best">314</td>
+                <td>0.8252s</td>
+                <td class="best">314</td>
+                <td>3.0533s</td>
+                <td class="best">314</td>
+                <td>0.7305s</td></tr>
+            <tr>
+                <td>fast_cluster/fast_cluster_500</td>
+                <td>500</td>
+                <td>4000</td>
+                <td>0.032064</td>
+                <td class="best">756</td>
+                <td>4.3405s</td>
+                <td class="best">756</td>
+                <td>29.9972s</td>
+                <td class="">765</td>
+                <td>3.2829s</td></tr>
+            <tr>
+                <td>fast_cluster/fast_cluster_200</td>
+                <td>200</td>
+                <td>1600</td>
+                <td>0.080402</td>
+                <td class="best">272</td>
+                <td>2.0648s</td>
+                <td class="best">272</td>
+                <td>9.0915s</td>
+                <td class="best">272</td>
+                <td>2.1853s</td></tr>
+            <tr>
+                <td>fast_cluster/fast_cluster_1000</td>
+                <td>1000</td>
+                <td>8000</td>
+                <td>0.016016</td>
+                <td class="best">1517</td>
+                <td>4.9458s</td>
+                <td class="best">1517</td>
+                <td>59.4328s</td>
+                <td class="">1518</td>
+                <td>4.0267s</td></tr>
+            <tr>
+                <td>fast_cluster/fast_cluster_5000</td>
+                <td>5000</td>
+                <td>40000</td>
+                <td>0.003201</td>
+                <td class="best">6098</td>
+                <td>28.4624s</td>
+                <td class="">31291</td>
+                <td>174.2414s</td>
+                <td class="">31380</td>
+                <td>12.1940s</td></tr>
+            <tr>
+                <td>barabasi_albert/barabasi_albert_1000</td>
+                <td>1000</td>
+                <td>4985</td>
+                <td>0.009980</td>
+                <td class="">4230</td>
+                <td>4.3229s</td>
+                <td class="">4230</td>
+                <td>57.6713s</td>
+                <td class="best">4199</td>
+                <td>4.8900s</td></tr>
+            <tr>
+                <td>barabasi_albert/barabasi_albert_5000</td>
+                <td>5000</td>
+                <td>24985</td>
+                <td>0.001999</td>
+                <td class="best">21695</td>
+                <td>29.8337s</td>
+                <td class="">25073</td>
+                <td>158.0077s</td>
+                <td class="">25077</td>
+                <td>12.2739s</td></tr>
+            <tr>
+                <td>barabasi_albert/barabasi_albert_50</td>
+                <td>50</td>
+                <td>100</td>
+                <td>0.081633</td>
+                <td class="best">50</td>
+                <td>0.2347s</td>
+                <td class="">51</td>
+                <td>0.6911s</td>
+                <td class="best">50</td>
+                <td>0.2100s</td></tr>
+            <tr>
+                <td>barabasi_albert/barabasi_albert_500</td>
+                <td>500</td>
+                <td>2485</td>
+                <td>0.019920</td>
+                <td class="">2153</td>
+                <td>4.2219s</td>
+                <td class="">2153</td>
+                <td>55.1296s</td>
+                <td class="best">2095</td>
+                <td>5.7477s</td></tr>
+            <tr>
+                <td>barabasi_albert/barabasi_albert_2000</td>
+                <td>2000</td>
+                <td>9985</td>
+                <td>0.004995</td>
+                <td class="best">8568</td>
+                <td>9.3259s</td>
+                <td class="">8680</td>
+                <td>76.3353s</td>
+                <td class="">8770</td>
+                <td>5.4776s</td></tr>
+            <tr>
+                <td>barabasi_albert/barabasi_albert_200</td>
+                <td>200</td>
+                <td>985</td>
+                <td>0.049497</td>
+                <td class="">863</td>
+                <td>2.7140s</td>
+                <td class="">863</td>
+                <td>17.6648s</td>
+                <td class="best">858</td>
+                <td>3.7154s</td></tr>
+            <tr>
+                <td>barabasi_albert/barabasi_albert_100</td>
+                <td>100</td>
+                <td>485</td>
+                <td>0.097980</td>
+                <td class="best">434</td>
+                <td>1.0190s</td>
+                <td class="best">434</td>
+                <td>5.3289s</td>
+                <td class="best">434</td>
+                <td>1.0525s</td></tr>
+            <tr>
+                <td>cluster/cluster_500</td>
+                <td>500</td>
+                <td>5000</td>
+                <td>0.040080</td>
+                <td class="">1047</td>
+                <td>2.1943s</td>
+                <td class="">1047</td>
+                <td>28.4042s</td>
+                <td class="best">1028</td>
+                <td>3.7947s</td></tr>
+            <tr>
+                <td>cluster/cluster_50</td>
+                <td>50</td>
+                <td>500</td>
+                <td>0.408163</td>
+                <td class="best">150</td>
+                <td>0.1061s</td>
+                <td class="best">150</td>
+                <td>0.4658s</td>
+                <td class="best">150</td>
+                <td>0.0814s</td></tr>
+            <tr>
+                <td>cluster/cluster_2000</td>
+                <td>2000</td>
+                <td>20000</td>
+                <td>0.010005</td>
+                <td class="">3408</td>
+                <td>7.2774s</td>
+                <td class="">3408</td>
+                <td>110.7597s</td>
+                <td class="best">3229</td>
+                <td>8.2223s</td></tr>
+            <tr>
+                <td>cluster/cluster_200</td>
+                <td>200</td>
+                <td>2000</td>
+                <td>0.100503</td>
+                <td class="best">340</td>
+                <td>2.3420s</td>
+                <td class="best">340</td>
+                <td>10.3681s</td>
+                <td class="">353</td>
+                <td>2.5008s</td></tr>
+            <tr>
+                <td>cluster/cluster_1000</td>
+                <td>1000</td>
+                <td>10000</td>
+                <td>0.020020</td>
+                <td class="">1813</td>
+                <td>4.2124s</td>
+                <td class="">1813</td>
+                <td>69.7582s</td>
+                <td class="best">1699</td>
+                <td>4.5184s</td></tr>
+            <tr>
+                <td>cluster/cluster_5000</td>
+                <td>5000</td>
+                <td>50000</td>
+                <td>0.004001</td>
+                <td class="best">7910</td>
+                <td>26.5545s</td>
+                <td class="">26345</td>
+                <td>206.1121s</td>
+                <td class="">30612</td>
+                <td>14.7685s</td></tr>
+            <tr>
+                <td>cluster/cluster_100</td>
+                <td>100</td>
+                <td>1000</td>
+                <td>0.202020</td>
+                <td class="best">421</td>
+                <td>0.7545s</td>
+                <td class="best">421</td>
+                <td>2.7575s</td>
+                <td class="best">421</td>
+                <td>0.6959s</td></tr>
+            <tr>
+                <td>complete/complete_50</td>
+                <td>50</td>
+                <td>1225</td>
+                <td>1.000000</td>
+                <td class="best">1733</td>
+                <td>0.2959s</td>
+                <td class="best">1733</td>
+                <td>1.9176s</td>
+                <td class="best">1733</td>
+                <td>0.2980s</td></tr>
+            <tr>
+                <td>path/path_100</td>
+                <td>100</td>
+                <td>99</td>
+                <td>0.020000</td>
+                <td class="best">2</td>
+                <td>0.1707s</td>
+                <td class="best">2</td>
+                <td>0.7495s</td>
+                <td class="best">2</td>
+                <td>0.1595s</td></tr>
+            <tr>
+                <td>path/path_1000</td>
+                <td>1000</td>
+                <td>999</td>
+                <td>0.002000</td>
+                <td class="best">2</td>
+                <td>0.5692s</td>
+                <td class="best">2</td>
+                <td>19.8731s</td>
+                <td class="best">2</td>
+                <td>0.8886s</td></tr>
+            <tr>
+                <td>path/path_500</td>
+                <td>500</td>
+                <td>499</td>
+                <td>0.004000</td>
+                <td class="best">1</td>
+                <td>1.2360s</td>
+                <td class="best">1</td>
+                <td>16.9459s</td>
+                <td class="best">1</td>
+                <td>1.2374s</td></tr>
+            <tr>
+                <td>path/path_50</td>
+                <td>50</td>
+                <td>49</td>
+                <td>0.040000</td>
+                <td class="best">2</td>
+                <td>0.0544s</td>
+                <td class="best">2</td>
+                <td>0.2779s</td>
+                <td class="best">2</td>
+                <td>0.0487s</td></tr>
+            <tr>
+                <td>path/path_2000</td>
+                <td>2000</td>
+                <td>1999</td>
+                <td>0.001000</td>
+                <td class="best">3</td>
+                <td>1.6669s</td>
+                <td class="best">3</td>
+                <td>32.6852s</td>
+                <td class="best">3</td>
+                <td>2.7465s</td></tr>
+            <tr>
+                <td>path/path_5000</td>
+                <td>5000</td>
+                <td>4999</td>
+                <td>0.000400</td>
+                <td class="best">2</td>
+                <td>3.3847s</td>
+                <td class="best">2</td>
+                <td>56.7417s</td>
+                <td class="best">2</td>
+                <td>3.6968s</td></tr>
+            <tr>
+                <td>path/path_200</td>
+                <td>200</td>
+                <td>199</td>
+                <td>0.010000</td>
+                <td class="best">1</td>
+                <td>1.2053s</td>
+                <td class="best">1</td>
+                <td>6.9869s</td>
+                <td class="best">1</td>
+                <td>1.8276s</td></tr>
+            <tr>
+                <td>grid/grid_49</td>
+                <td>49</td>
+                <td>84</td>
+                <td>0.071429</td>
+                <td class="best">13</td>
+                <td>0.0949s</td>
+                <td class="best">13</td>
+                <td>0.4237s</td>
+                <td class="best">13</td>
+                <td>0.1056s</td></tr>
+            <tr>
+                <td>grid/grid_961</td>
+                <td>961</td>
+                <td>1860</td>
+                <td>0.004032</td>
+                <td class="best">103</td>
+                <td>4.3830s</td>
+                <td class="best">103</td>
+                <td>55.2809s</td>
+                <td class="">108</td>
+                <td>4.9598s</td></tr>
+            <tr>
+                <td>grid/grid_100</td>
+                <td>100</td>
+                <td>180</td>
+                <td>0.036364</td>
+                <td class="best">33</td>
+                <td>0.5622s</td>
+                <td class="best">33</td>
+                <td>2.2033s</td>
+                <td class="best">33</td>
+                <td>0.5351s</td></tr>
+            <tr>
+                <td>grid/grid_484</td>
+                <td>484</td>
+                <td>924</td>
+                <td>0.007905</td>
+                <td class="best">47</td>
+                <td>5.5597s</td>
+                <td class="best">47</td>
+                <td>39.4625s</td>
+                <td class="">83</td>
+                <td>4.6297s</td></tr>
+            <tr>
+                <td>grid/grid_4900</td>
+                <td>4900</td>
+                <td>9660</td>
+                <td>0.000805</td>
+                <td class="best">180</td>
+                <td>16.7316s</td>
+                <td class="">182</td>
+                <td>126.9137s</td>
+                <td class="">258</td>
+                <td>11.2825s</td></tr>
+            <tr>
+                <td>grid/grid_196</td>
+                <td>196</td>
+                <td>364</td>
+                <td>0.019048</td>
+                <td class="best">26</td>
+                <td>4.7096s</td>
+                <td class="">27</td>
+                <td>14.3306s</td>
+                <td class="">49</td>
+                <td>2.8041s</td></tr>
+            <tr>
+                <td>grid/grid_1936</td>
+                <td>1936</td>
+                <td>3784</td>
+                <td>0.002020</td>
+                <td class="">148</td>
+                <td>4.2018s</td>
+                <td class="">148</td>
+                <td>70.7155s</td>
+                <td class="best">147</td>
+                <td>4.3333s</td></tr>
+    </tbody>
+</table>
+
+<h2>📊 Best Results by Graph Size</h2>
+<table>
+    <thead>
+        <tr><th>Size Range</th><th>Best Algorithm (avg cut)</th><th>Best Algorithm (avg time)</th></tr>
+    </thead>
+    <tbody>
+        <tr>
+            <td>Small (<200)</td>
+            <td>KL</td>
+            <td>FastMultilevel</td>
+        </tr>
+        <tr>
+            <td>Large (>1000)</td>
+            <td>KL</td>
+            <td>FastMultilevel</td>
+        </tr>
+        <tr>
+            <td>Medium (200-1000)</td>
+            <td>FastMultilevel</td>
+            <td>KL</td>
+        </tr>
+    </tbody>
+</table>
+
+</body>
+</html>

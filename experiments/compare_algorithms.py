@@ -1,338 +1,387 @@
 #!/usr/bin/env python3
 """
-Сравнение алгоритмов разбиения: Kernighan-Lin vs Multilevel
+Сравнение алгоритмов разбиения на тестовом наборе графов
 
 Запуск:
-    python experiments/compare_algorithms.py --sizes 100,500,1000,5000 --trials 5
-
-Параметры:
-    --sizes: размеры графов через запятую (по умолчанию: 100,200,500,1000)
-    --trials: количество повторений для усреднения (по умолчанию: 3)
-    --output: выходной CSV файл (по умолчанию: comparison_results.csv)
-    --seed: seed для воспроизводимости (по умолчанию: 42)
+    python experiments/benchmark_partitioners.py --suite data/test_suite --output results.csv
 """
 
+import os
 import sys
 import time
+import json
 import argparse
 import csv
 from pathlib import Path
-from typing import List, Dict, Any, Tuple
+from datetime import datetime
+from typing import List, Dict, Any, Tuple, Optional
 
 sys.path.append(str(Path(__file__).parent.parent))
 
 from core.graph import Graph
+from core.partition import Partition
 from algorithms.kernighan_lin import KernighanLin
-from algorithms.multilevel import FastMultilevelPartitioner, UltraFastMultilevelPartitioner #MultilevelPartitioner, AdaptiveMultilevelPartitioner
-from data.generators import FastClusterGenerator, BarabasiAlbertGenerator
+from algorithms.multilevel import FastMultilevelPartitioner
+from algorithms.multilevel_slow import MultilevelPartitioner
+from metrics.partition_metrics import PartitionMetrics
 
 
-class AlgorithmComparator:
-    """Сравнение алгоритмов разбиения"""
+class Benchmarker:
+    """Бенчмарк для сравнения алгоритмов разбиения"""
     
-    def __init__(self, seed: int = 42):
-        self.seed = seed
+    def __init__(self, timeout: int = 300):
+        self.timeout = timeout  # таймаут в секундах
         self.results = []
     
-    # В experiments/compare_algorithms.py измените generate_test_graphs:
-
-    def generate_test_graphs(self, sizes: List[int], graph_type: str = 'cluster') -> List[Tuple[str, Graph]]:
-        """Генерация тестовых графов разных размеров"""
+    def load_graphs(self, suite_dir: str) -> List[Tuple[str, Graph]]:
+        """Загрузка всех графов из тестового набора"""
         graphs = []
+        suite_path = Path(suite_dir)
         
-        for size in sizes:
-            if graph_type in ['cluster', 'both']:
-                num_clusters = max(2, size // 30)  # Больше кластеров
-                vertices_per_cluster = size // num_clusters
-                
-                # Количество рёбер: примерно 3-5 на вершину (разреженный граф)
-                target_edges = min(size * 5, 100000)  # Не более 5 рёбер на вершину
-                
-                gen = FastClusterGenerator(
-                    num_clusters=num_clusters,
-                    vertices_per_cluster=vertices_per_cluster,
-                    target_edges=target_edges,  # Уменьшено!
-                    intra_ratio=0.5,  # Меньше внутренних связей
-                    weight_range=(1, 10),  # Простые веса
-                    vertex_weight_range=(1, 20),
-                    seed=self.seed
-                )
-                graph = gen.generate_ultra_fast()  # Используем ультра-быстрый метод
-                graphs.append((f"cluster_{size}", graph))
+        for graph_type_dir in suite_path.iterdir():
+            if not graph_type_dir.is_dir():
+                continue
+            
+            for file_path in graph_type_dir.glob("*.txt"):
+                try:
+                    graph = Graph.load_from_file(str(file_path))
+                    name = f"{graph_type_dir.name}/{file_path.stem}"
+                    graphs.append((name, graph))
+                    print(f"  Loaded: {name} ({graph.num_vertices} vertices, {graph.num_edges} edges)")
+                except Exception as e:
+                    print(f"  Failed to load {file_path}: {e}")
         
         return graphs
     
-    def run_comparison(self, graphs: List[Tuple[str, Graph]], 
-                   trials: int = 3,
-                   balance_ratio: float = 0.5) -> List[Dict[str, Any]]:
-        """Запуск сравнения с оптимизированными версиями"""
+    def run_algorithm(self, name: str, algorithm, graph: Graph, balance: float = 0.5) -> Dict[str, Any]:
+        """Запуск одного алгоритма с замером времени"""
+        result = {
+            'algorithm': name,
+            'success': False,
+            'cut_weight': None,
+            'time': None,
+            'memory_mb': None,
+            'balance': None,
+            'error': None
+        }
+        
+        try:
+            start = time.time()
+            partition, metrics = algorithm.partition(graph, balance)
+            elapsed = time.time() - start
+            
+            result['success'] = True
+            result['cut_weight'] = metrics.cut_weight
+            result['time'] = elapsed
+            result['memory_mb'] = metrics.memory_mb
+            result['balance'] = partition.balance_quality()
+            
+        except Exception as e:
+            result['error'] = str(e)
+        
+        return result
+    
+    def benchmark_graph(self, graph: Graph, graph_name: str, algorithms: Dict[str, Any]) -> Dict[str, Any]:
+        """Запуск всех алгоритмов на одном графе"""
+        print(f"\n  Benchmarking {graph_name}...")
+        
+        result = {
+            'graph_name': graph_name,
+            'vertices': graph.num_vertices,
+            'edges': graph.num_edges,
+            'density': 2 * graph.num_edges / (graph.num_vertices * (graph.num_vertices - 1)) if graph.num_vertices > 1 else 0,
+            'vertex_weights': [graph.get_vertex_weight(v) for v in range(min(5, graph.num_vertices))],
+            'results': {}
+        }
+        
+        for algo_name, algorithm in algorithms.items():
+            print(f"    Running {algo_name}...", end=" ", flush=True)
+            algo_result = self.run_algorithm(algo_name, algorithm, graph)
+            result['results'][algo_name] = algo_result
+            
+            if algo_result['success']:
+                print(f"cut={algo_result['cut_weight']}, time={algo_result['time']:.3f}s")
+            else:
+                print(f"FAILED: {algo_result['error']}")
+        
+        return result
+    
+    def run_benchmark(self, suite_dir: str, algorithms: Dict[str, Any]) -> List[Dict[str, Any]]:
+        """Запуск полного бенчмарка"""
+        print("=" * 70)
+        print("LOADING GRAPHS")
+        print("=" * 70)
+        
+        graphs = self.load_graphs(suite_dir)
+        print(f"\nLoaded {len(graphs)} graphs")
+        
+        print("\n" + "=" * 70)
+        print("RUNNING BENCHMARK")
+        print("=" * 70)
         
         results = []
-        
-        for name, graph in graphs:
-            print(f"\n{'='*70}")
-            print(f"Testing: {name}")
-            print(f"  Vertices: {graph.num_vertices}, Edges: {graph.num_edges}")
-            print(f"{'='*70}")
-            
-            # KL алгоритм (медленный, но качественный)
-            kl_times = []
-            kl_cuts = []
-            
-            for t in range(min(trials, 2)):  # Меньше повторов для KL
-                print(f"  KL: trial {t+1}/{min(trials,2)}...", end=" ", flush=True)
-                kl = KernighanLin(max_passes=15, seed=self.seed + t)
-                partition, metrics = kl.partition(graph, balance_ratio)
-                kl_times.append(metrics.time_seconds)
-                kl_cuts.append(metrics.cut_weight)
-                print(f"cut={metrics.cut_weight}, time={metrics.time_seconds:.3f}s")
-            
-            # Fast Multilevel
-            ml_times = []
-            ml_cuts = []
-            
-            for t in range(trials):
-                print(f"  FastML: trial {t+1}/{trials}...", end=" ", flush=True)
-                ml = FastMultilevelPartitioner(
-                    min_coarse_vertices=max(50, graph.num_vertices // 20),
-                    refinement_passes=1,
-                    seed=self.seed + t
-                )
-                partition, metrics = ml.partition(graph, balance_ratio)
-                ml_times.append(metrics.time_seconds)
-                ml_cuts.append(metrics.cut_weight)
-                print(f"cut={metrics.cut_weight}, time={metrics.time_seconds:.3f}s")
-            
-            # Ultra Fast Multilevel для больших графов
-            if graph.num_vertices > 1000:
-                uf_times = []
-                uf_cuts = []
-                
-                for t in range(trials):
-                    print(f"  UltraFastML: trial {t+1}/{trials}...", end=" ", flush=True)
-                    uf = UltraFastMultilevelPartitioner(seed=self.seed + t)
-                    partition, metrics = uf.partition(graph, balance_ratio)
-                    uf_times.append(metrics.time_seconds)
-                    uf_cuts.append(metrics.cut_weight)
-                    print(f"cut={metrics.cut_weight}, time={metrics.time_seconds:.3f}s")
-                
-                best_ml = min(ml_cuts)
-                best_uf = min(uf_cuts)
-                best_ml_time = min(ml_times)
-                best_uf_time = min(uf_times)
-                
-                ml_cut = best_uf if best_uf < best_ml else best_ml
-                ml_time = best_uf_time if best_uf < best_ml else best_ml_time
-            else:
-                ml_cut = min(ml_cuts)
-                ml_time = min(ml_times)
-            
-            result = {
-                'graph_name': name,
-                'num_vertices': graph.num_vertices,
-                'num_edges': graph.num_edges,
-                'kl_cut': min(kl_cuts),
-                'kl_time': min(kl_times),
-                'ml_cut': ml_cut,
-                'ml_time': ml_time,
-                'cut_improvement': (min(kl_cuts) - ml_cut) / max(1, min(kl_cuts)) * 100,
-                'speedup': min(kl_times) / max(0.001, ml_time),
-            }
-            
+        for i, (name, graph) in enumerate(graphs):
+            print(f"\n[{i+1}/{len(graphs)}]")
+            result = self.benchmark_graph(graph, name, algorithms)
             results.append(result)
-            
-            print(f"\n  Summary:")
-            print(f"    KL:        cut={result['kl_cut']}, time={result['kl_time']:.4f}s")
-            print(f"    Multilevel: cut={result['ml_cut']}, time={result['ml_time']:.4f}s")
-            print(f"    Improvement: {result['cut_improvement']:+.2f}%")
-            print(f"    Speedup: {result['speedup']:.2f}x")
         
         return results
     
-    def _std(self, values: List[float]) -> float:
-        """Вычисление стандартного отклонения"""
-        if len(values) <= 1:
-            return 0.0
-        mean = sum(values) / len(values)
-        variance = sum((x - mean) ** 2 for x in values) / (len(values) - 1)
-        return variance ** 0.5
-    
-    def print_summary(self):
-        """Вывод сводки результатов"""
-        if not self.results:
-            print("No results to display")
-            return
-        
-        print("\n" + "=" * 90)
-        print("COMPARISON SUMMARY")
-        print("=" * 90)
-        print(f"{'Graph':<20} {'Vertices':<10} {'Edges':<10} {'KL cut':<10} {'ML cut':<10} {'Improve':<10} {'Speedup':<10} {'Winner':<12}")
-        print("-" * 90)
-        
-        for r in self.results:
-            print(f"{r['graph_name']:<20} {r['num_vertices']:<10} {r['num_edges']:<10} "
-                  f"{r['kl_best_cut']:<10} {r['ml_best_cut']:<10} "
-                  f"{r['cut_improvement']:>+8.2f}%   {r['speedup']:>8.2f}x   {r['winner']:<12}")
-        
-        print("=" * 90)
-        
-        # Общая статистика
-        improvements = [r['cut_improvement'] for r in self.results]
-        speedups = [r['speedup'] for r in self.results]
-        
-        print(f"\nOverall Statistics:")
-        print(f"  Average improvement: {sum(improvements)/len(improvements):+.2f}%")
-        print(f"  Average speedup: {sum(speedups)/len(speedups):.2f}x")
-        print(f"  Multilevel wins: {sum(1 for r in self.results if r['winner'] == 'Multilevel')}/{len(self.results)}")
-    
-    def export_to_csv(self, filename: str):
+    def export_csv(self, results: List[Dict[str, Any]], output_file: str):
         """Экспорт результатов в CSV"""
-        if not self.results:
-            print("No results to export")
-            return
+        rows = []
         
-        fieldnames = [
-            'graph_name', 'num_vertices', 'num_edges', 'density',
-            'kl_time_avg', 'kl_time_std', 'kl_cut_avg', 'kl_cut_std', 'kl_balance_avg', 'kl_best_cut', 'kl_best_time',
-            'ml_time_avg', 'ml_time_std', 'ml_cut_avg', 'ml_cut_std', 'ml_balance_avg', 'ml_best_cut', 'ml_best_time', 'ml_levels_avg',
-            'cut_improvement', 'speedup', 'winner'
-        ]
+        for res in results:
+            for algo_name, algo_res in res['results'].items():
+                row = {
+                    'graph_name': res['graph_name'],
+                    'vertices': res['vertices'],
+                    'edges': res['edges'],
+                    'density': f"{res['density']:.6f}",
+                    'algorithm': algo_name,
+                    'cut_weight': algo_res['cut_weight'] if algo_res['success'] else 'FAILED',
+                    'time_seconds': f"{algo_res['time']:.4f}" if algo_res['success'] else 'FAILED',
+                    'memory_mb': f"{algo_res['memory_mb']:.2f}" if algo_res['success'] else 'FAILED',
+                    'balance': f"{algo_res['balance']:.4f}" if algo_res['success'] else 'FAILED',
+                    'error': algo_res['error'] or ''
+                }
+                rows.append(row)
         
-        with open(filename, 'w', newline='') as f:
+        with open(output_file, 'w', newline='') as f:
+            fieldnames = ['graph_name', 'vertices', 'edges', 'density', 'algorithm', 
+                         'cut_weight', 'time_seconds', 'memory_mb', 'balance', 'error']
             writer = csv.DictWriter(f, fieldnames=fieldnames)
             writer.writeheader()
-            for r in self.results:
-                writer.writerow(r)
+            writer.writerows(rows)
         
-        print(f"\nResults exported to {filename}")
+        print(f"\n✓ Results exported to {output_file}")
     
-    def plot_results(self, output_dir: str = "."):
-        """Построение графиков (если есть matplotlib)"""
-        try:
-            import matplotlib.pyplot as plt
-            import numpy as np
+    def export_json(self, results: List[Dict[str, Any]], output_file: str):
+        """Экспорт результатов в JSON"""
+        with open(output_file, 'w') as f:
+            json.dump(results, f, indent=2, default=str)
+        print(f"✓ Results exported to {output_file}")
+    
+    def print_summary(self, results: List[Dict[str, Any]]):
+        """Вывод сводной таблицы"""
+        print("\n" + "=" * 100)
+        print("SUMMARY TABLE")
+        print("=" * 100)
+        
+        # Заголовок
+        print(f"{'Graph':<35} {'Vertices':<10} {'Edges':<10} {'Algorithm':<15} {'Cut':<10} {'Time(s)':<10} {'Memory(MB)':<12}")
+        print("-" * 100)
+        
+        for res in results:
+            first_algo = True
+            for algo_name, algo_res in res['results'].items():
+                if first_algo:
+                    graph_display = f"{res['graph_name']}"
+                    vertices_display = f"{res['vertices']}"
+                    edges_display = f"{res['edges']}"
+                    first_algo = False
+                else:
+                    graph_display = ""
+                    vertices_display = ""
+                    edges_display = ""
+                
+                if algo_res['success']:
+                    cut = f"{algo_res['cut_weight']}"
+                    time_s = f"{algo_res['time']:.3f}"
+                    memory = f"{algo_res['memory_mb']:.1f}"
+                else:
+                    cut = "FAILED"
+                    time_s = "FAILED"
+                    memory = "FAILED"
+                
+                print(f"{graph_display:<35} {vertices_display:<10} {edges_display:<10} {algo_name:<15} {cut:<10} {time_s:<10} {memory:<12}")
             
-            if not self.results:
-                print("No results to plot")
-                return
+            print("-" * 100)
+    
+    def generate_report(self, results: List[Dict[str, Any]], output_dir: str):
+        """Генерация HTML отчёта"""
+        report_path = Path(output_dir) / "benchmark_report.html"
+        
+        html = f"""<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>Graph Partitioning Benchmark Report</title>
+    <style>
+        body {{ font-family: Arial, sans-serif; margin: 20px; background: #1e1e1e; color: #d4d4d4; }}
+        h1, h2 {{ color: #3498db; }}
+        table {{ border-collapse: collapse; width: 100%; margin: 20px 0; }}
+        th, td {{ border: 1px solid #555; padding: 8px; text-align: left; }}
+        th {{ background-color: #2c3e50; color: #3498db; }}
+        tr:nth-child(even) {{ background-color: #2a2a2a; }}
+        .success {{ color: #2ecc71; }}
+        .failed {{ color: #e74c3c; }}
+        .best {{ background-color: #27ae60; color: white; }}
+        .summary {{ background-color: #2c3e50; padding: 10px; border-radius: 5px; margin: 20px 0; }}
+        .metric {{ display: inline-block; margin: 0 20px; }}
+        .metric-value {{ font-size: 24px; font-weight: bold; color: #3498db; }}
+    </style>
+</head>
+<body>
+    <h1>📊 Graph Partitioning Benchmark Report</h1>
+    <p>Generated: {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}</p>
+    
+    <div class="summary">
+        <div class="metric">
+            <div>Total Graphs</div>
+            <div class="metric-value">{len(results)}</div>
+        </div>
+        <div class="metric">
+            <div>Algorithms</div>
+            <div class="metric-value">{len(results[0]['results']) if results else 0}</div>
+        </div>
+    </div>
+    
+    <h2>📈 Results by Graph</h2>
+    <table>
+        <thead>
+            <tr><th>Graph</th><th>Vertices</th><th>Edges</th><th>Density</th>"""
+        
+        # Добавляем колонки для каждого алгоритма
+        if results:
+            for algo_name in results[0]['results'].keys():
+                html += f"<th>{algo_name} (cut)</th><th>{algo_name} (time)</th>"
+        
+        html += "</tr></thead><tbody>"
+        
+        for res in results:
+            html += f"""
+            <tr>
+                <td>{res['graph_name']}</td>
+                <td>{res['vertices']}</td>
+                <td>{res['edges']}</td>
+                <td>{res['density']:.6f}</td>"""
             
-            # Подготовка данных
-            sizes = [r['num_vertices'] for r in self.results]
-            kl_cuts = [r['kl_best_cut'] for r in self.results]
-            ml_cuts = [r['ml_best_cut'] for r in self.results]
-            improvements = [r['cut_improvement'] for r in self.results]
-            speedups = [r['speedup'] for r in self.results]
+            # Находим лучший cut
+            best_cut = min((v['cut_weight'] for v in res['results'].values() if v['success']), default=None)
             
-            fig, axes = plt.subplots(2, 2, figsize=(12, 10))
+            for algo_name, algo_res in res['results'].items():
+                if algo_res['success']:
+                    cut_class = "best" if algo_res['cut_weight'] == best_cut and best_cut is not None else ""
+                    html += f"""
+                <td class="{cut_class}">{algo_res['cut_weight']}</td>
+                <td>{algo_res['time']:.4f}s</td>"""
+                else:
+                    html += """
+                <td class="failed">FAILED</td>
+                <td class="failed">FAILED</td>"""
             
-            # График 1: Cut size vs размер графа
-            ax1 = axes[0, 0]
-            ax1.plot(sizes, kl_cuts, 'o-', label='KL', color='red', linewidth=2, markersize=8)
-            ax1.plot(sizes, ml_cuts, 's-', label='Multilevel', color='blue', linewidth=2, markersize=8)
-            ax1.set_xlabel('Number of Vertices')
-            ax1.set_ylabel('Cut Size')
-            ax1.set_title('Cut Size Comparison')
-            ax1.legend()
-            ax1.grid(True, alpha=0.3)
+            html += "</tr>"
+        
+        html += """
+    </tbody>
+</table>
+
+<h2>📊 Best Results by Graph Size</h2>
+<table>
+    <thead>
+        <tr><th>Size Range</th><th>Best Algorithm (avg cut)</th><th>Best Algorithm (avg time)</th></tr>
+    </thead>
+    <tbody>"""
+        
+        # Группировка по размеру
+        size_groups = {}
+        for res in results:
+            size_group = "Small (<200)" if res['vertices'] < 200 else "Medium (200-1000)" if res['vertices'] < 1000 else "Large (>1000)"
+            if size_group not in size_groups:
+                size_groups[size_group] = []
+            size_groups[size_group].append(res)
+        
+        for size_group, group_results in size_groups.items():
+            # Усредняем результаты
+            algo_cuts = {}
+            algo_times = {}
+            for res in group_results:
+                for algo_name, algo_res in res['results'].items():
+                    if algo_res['success']:
+                        algo_cuts.setdefault(algo_name, []).append(algo_res['cut_weight'])
+                        algo_times.setdefault(algo_name, []).append(algo_res['time'])
             
-            # График 2: Улучшение vs размер графа
-            ax2 = axes[0, 1]
-            colors = ['green' if imp > 0 else 'red' for imp in improvements]
-            ax2.bar(range(len(sizes)), improvements, color=colors, alpha=0.7)
-            ax2.set_xticks(range(len(sizes)))
-            ax2.set_xticklabels([str(s) for s in sizes], rotation=45)
-            ax2.set_xlabel('Number of Vertices')
-            ax2.set_ylabel('Improvement (%)')
-            ax2.set_title('Multilevel Improvement over KL')
-            ax2.axhline(y=0, color='black', linestyle='-', linewidth=0.5)
-            ax2.grid(True, alpha=0.3)
+            best_cut_algo = min(algo_cuts.keys(), key=lambda a: sum(algo_cuts[a])/len(algo_cuts[a]) if algo_cuts[a] else float('inf')) if algo_cuts else "N/A"
+            best_time_algo = min(algo_times.keys(), key=lambda a: sum(algo_times[a])/len(algo_times[a]) if algo_times[a] else float('inf')) if algo_times else "N/A"
             
-            # График 3: Speedup vs размер графа
-            ax3 = axes[1, 0]
-            ax3.plot(sizes, speedups, 'd-', color='purple', linewidth=2, markersize=8)
-            ax3.axhline(y=1, color='gray', linestyle='--', linewidth=1)
-            ax3.set_xlabel('Number of Vertices')
-            ax3.set_ylabel('Speedup (KL time / ML time)')
-            ax3.set_title('Speedup Comparison')
-            ax3.grid(True, alpha=0.3)
-            
-            # График 4: Распределение времени
-            ax4 = axes[1, 1]
-            kl_times = [r['kl_best_time'] for r in self.results]
-            ml_times = [r['ml_best_time'] for r in self.results]
-            x = np.arange(len(sizes))
-            width = 0.35
-            ax4.bar(x - width/2, kl_times, width, label='KL', color='red', alpha=0.7)
-            ax4.bar(x + width/2, ml_times, width, label='Multilevel', color='blue', alpha=0.7)
-            ax4.set_xticks(x)
-            ax4.set_xticklabels([str(s) for s in sizes], rotation=45)
-            ax4.set_xlabel('Number of Vertices')
-            ax4.set_ylabel('Time (seconds)')
-            ax4.set_title('Runtime Comparison')
-            ax4.legend()
-            ax4.grid(True, alpha=0.3)
-            
-            plt.tight_layout()
-            plt.savefig(f"{output_dir}/comparison_plot.png", dpi=150, bbox_inches='tight')
-            plt.show()
-            
-            print(f"Plot saved to {output_dir}/comparison_plot.png")
-            
-        except ImportError:
-            print("Matplotlib not available, skipping plots")
+            html += f"""
+        <tr>
+            <td>{size_group}</td>
+            <td>{best_cut_algo}</td>
+            <td>{best_time_algo}</td>
+        </tr>"""
+        
+        html += """
+    </tbody>
+</table>
+
+</body>
+</html>"""
+        
+        with open(report_path, 'w') as f:
+            f.write(html)
+        
+        print(f"✓ HTML report generated: {report_path}")
 
 
 def main():
-    parser = argparse.ArgumentParser(description='Compare KL and Multilevel algorithms')
-    parser.add_argument('--sizes', type=str, default='100,200,500,1000',
-                        help='Graph sizes to test (comma-separated)')
-    parser.add_argument('--trials', type=int, default=3,
-                        help='Number of trials for averaging')
-    parser.add_argument('--graph-type', type=str, default='cluster',
-                        choices=['cluster', 'barabasi', 'both'],
-                        help='Type of graphs to generate')
-    parser.add_argument('--output', type=str, default='comparison_results.csv',
-                        help='Output CSV file')
-    parser.add_argument('--seed', type=int, default=42,
-                        help='Random seed')
-    parser.add_argument('--no-plot', action='store_true',
-                        help='Disable plotting')
+    parser = argparse.ArgumentParser(description='Benchmark graph partitioning algorithms')
+    parser.add_argument('--suite', type=str, default='data/test_suite',
+                       help='Path to test suite directory')
+    parser.add_argument('--output', type=str, default='benchmark_results',
+                       help='Output file prefix (without extension)')
+    parser.add_argument('--timeout', type=int, default=300,
+                       help='Timeout per algorithm in seconds')
+    parser.add_argument('--balance', type=float, default=0.5,
+                       help='Balance ratio for partitioning')
+    parser.add_argument('--max-vertices', type=int, default=None,
+                       help='Maximum vertices to benchmark (for quick test)')
     
     args = parser.parse_args()
     
-    # Парсим размеры
-    sizes = [int(s.strip()) for s in args.sizes.split(',')]
+    # Настройка алгоритмов
+    algorithms = {
+        'KL': KernighanLin(max_passes=20, seed=42),
+        'Multilevel': MultilevelPartitioner(min_coarse_vertices=20, max_levels=10, seed=42),
+        'FastMultilevel': FastMultilevelPartitioner(refinement_passes=1, seed=42)
+    }
     
     print("=" * 70)
-    print("ALGORITHM COMPARISON: Kernighan-Lin vs Multilevel")
+    print("GRAPH PARTITIONING BENCHMARK")
     print("=" * 70)
-    print(f"Sizes: {sizes}")
-    print(f"Trials per size: {args.trials}")
-    print(f"Graph type: {args.graph_type}")
-    print(f"Seed: {args.seed}")
+    print(f"Test suite: {args.suite}")
+    print(f"Balance ratio: {args.balance}")
+    print(f"Timeout: {args.timeout}s")
+    print(f"\nAlgorithms: {', '.join(algorithms.keys())}")
     
-    # Создаём компаратор
-    comparator = AlgorithmComparator(seed=args.seed)
+    # Загрузка и фильтрация графов
+    benchmarker = Benchmarker(timeout=args.timeout)
+    all_graphs = benchmarker.load_graphs(args.suite)
     
-    # Генерируем графы
-    print("\nGenerating test graphs...")
-    graphs = comparator.generate_test_graphs(sizes, args.graph_type)
-    print(f"Generated {len(graphs)} graphs")
+    # Фильтрация по размеру
+    if args.max_vertices:
+        all_graphs = [(name, g) for name, g in all_graphs if g.num_vertices <= args.max_vertices]
+        print(f"\nFiltered to {len(all_graphs)} graphs (max vertices = {args.max_vertices})")
     
-    # Запускаем сравнение
-    comparator.run_comparison(graphs, trials=args.trials)
+    if not all_graphs:
+        print("No graphs found!")
+        return
     
-    # Выводим сводку
-    comparator.print_summary()
+    # Запуск бенчмарка
+    results = benchmarker.run_benchmark(args.suite, algorithms)
     
-    # Экспортируем результаты
-    comparator.export_to_csv(args.output)
+    # Вывод результатов
+    benchmarker.print_summary(results)
     
-    # Строим графики
-    if not args.no_plot:
-        comparator.plot_results()
+    # Экспорт
+    benchmarker.export_csv(results, f"{args.output}.csv")
+    benchmarker.export_json(results, f"{args.output}.json")
+    benchmarker.generate_report(results, ".")
     
-    print("\nDone!")
+    print("\n" + "=" * 70)
+    print("BENCHMARK COMPLETED")
+    print("=" * 70)
 
 
 if __name__ == "__main__":

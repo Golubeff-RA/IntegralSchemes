@@ -108,26 +108,28 @@ class MultilevelPartitioner(PartitionerWithStats):
         self.levels = []
         current = graph
         level_num = 0
-        
+
         print(f"\n  📉 Coarsening phase:")
         print(f"     Level 0: {current.num_vertices} vertices, {current.num_edges} edges")
-        
+
         for level_num in range(1, self.max_levels + 1):
             if current.num_vertices <= self.min_coarse_vertices:
-                print(f"     ✓ Stopped: reached minimum vertices ({current.num_vertices} <= {self.min_coarse_vertices})")
+                print(
+                    f"     ✓ Stopped: reached minimum vertices ({current.num_vertices} <= {self.min_coarse_vertices})"
+                )
                 break
-            
+
             # Находим паросочетание для стягивания
             matching = self._find_matching(current)
-            
+
             if not matching:
                 print(f"     ✗ No matching found at level {level_num}")
                 break
-            
+
             # Стягиваем граф
             coarse_graph = CoarseGraph.from_matching(current, matching)
             compression = coarse_graph.num_vertices / current.num_vertices
-            
+
             # Сохраняем уровень (сохраняем исходный граф, а не to_graph)
             level = CoarseningLevel(
                 level=level_num,
@@ -135,20 +137,20 @@ class MultilevelPartitioner(PartitionerWithStats):
                 coarse_graph=coarse_graph,
                 vertex_map={v: cv for v, cv in coarse_graph._original_to_coarse.items()},
                 reverse_map=coarse_graph._coarse_to_original.copy(),
-                compression_ratio=compression
+                compression_ratio=compression,
             )
             self.levels.append(level)
-            
+
             print(f"     Level {level_num}: {coarse_graph.num_vertices} vertices (compression: {compression:.3f})")
-            
+
             # Создаём граф для следующего уровня - используем to_graph() только здесь
             current = coarse_graph.to_graph()
-            
+
             # Если сжатие слишком слабое, останавливаемся
             if compression > 0.9:
                 print(f"     ✓ Stopped: weak compression ({compression:.3f} > 0.9)")
                 break
-        
+
         # Запоминаем самый грубый граф (последний current)
         self.coarsest_graph = current
 
@@ -229,30 +231,33 @@ class MultilevelPartitioner(PartitionerWithStats):
         """
         current_partition = partition
         total_levels = len(self.levels)
-        
+
         for i, level in enumerate(reversed(self.levels)):
             level_num = total_levels - i
-            
-            print(f"     Level {level_num}: projecting from {level.coarse_graph.num_vertices} to {level.graph.num_vertices} vertices")
-            
+
+            print(
+                f"     Level {level_num}: projecting from {level.coarse_graph.num_vertices} to {level.graph.num_vertices} vertices"
+            )
+
             # 1. Проекция разбиения
             current_partition = level.coarse_graph.expand_partition(current_partition)
-            
+
             # Обновляем веса частей на основе текущего графа
             current_partition.update_weights(level.graph)
-            
+
             # 2. Улучшаем разбиение на текущем уровне
             for attempt in range(self.refinement_passes):
                 kl = KernighanLin(max_passes=5, seed=self.seed + attempt)
                 current_partition, _ = kl.partition(level.graph, balance_ratio)
-                
+
                 cut = current_partition.cut_weight(level.graph)
                 self._record_iteration(cut)
-            
+
             cut = current_partition.cut_weight(level.graph)
             print(f"       Cut after refinement: {cut}")
-        
+
         return current_partition
+
     def get_coarsening_history(self) -> List[Dict[str, Any]]:
         """
         Получение истории стягивания для визуализации

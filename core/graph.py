@@ -90,26 +90,57 @@ class Graph:
         return v in self._adj[u]
     
     def save_to_file(self, filename: str) -> None:
+        """Сохранение графа в файл с весами вершин"""
         with open(filename, 'w') as f:
-            f.write(f"{self._num_vertices} {self._num_edges}\n")
+            # Заголовок: количество вершин, количество рёбер, флаг наличия весов вершин
+            f.write(f"{self._num_vertices} {self._num_edges} 1\n")  # 1 = есть веса вершин
+            
+            # Строка с весами вершин
+            vertex_weights = [str(self.get_vertex_weight(v)) for v in range(self._num_vertices)]
+            f.write(" ".join(vertex_weights) + "\n")
+            
+            # Рёбра
             seen = set()
             for u in range(self._num_vertices):
                 for i, v in enumerate(self._adj[u]):
-                    if u < v:
+                    if u < v and (u, v) not in seen:
+                        seen.add((u, v))
                         w = self._adj_weights[u][i]
                         f.write(f"{u+1} {v+1} {w}\n")
     
     @staticmethod
     def load_from_file(filename: str) -> 'Graph':
+        """Загрузка графа из файла с поддержкой весов вершин"""
         with open(filename, 'r') as f:
-            n, m = map(int, f.readline().split())
+            # Читаем заголовок
+            parts = f.readline().split()
+            n = int(parts[0])
+            m = int(parts[1])
+            has_vertex_weights = len(parts) > 2 and parts[2] == '1'
+            
             g = Graph(n)
+            
+            # Читаем веса вершин (если есть)
+            if has_vertex_weights:
+                weights_line = f.readline().strip()
+                while weights_line == '':
+                    weights_line = f.readline().strip()
+                weights = list(map(int, weights_line.split()))
+                for v, w in enumerate(weights[:n]):
+                    g.set_vertex_weight(v, w)
+            
+            # Читаем рёбра
             for _ in range(m):
-                parts = f.readline().split()
+                line = f.readline().strip()
+                while line == '':
+                    line = f.readline().strip()
+                
+                parts = line.split()
                 u = int(parts[0]) - 1
                 v = int(parts[1]) - 1
                 w = int(parts[2]) if len(parts) > 2 else 1
                 g.add_edge(u, v, w)
+        
         return g
     
     def __repr__(self) -> str:

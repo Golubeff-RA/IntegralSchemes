@@ -15,6 +15,7 @@ class StagesWindow:
 
         self.levels = levels
         self.current = 0
+        
         self.node_positions = {}  # Сохраняем позиции для каждого уровня
         self.repulsion = 5000
         self.attraction = 0.05

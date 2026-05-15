@@ -39,7 +39,7 @@ class ControlsPanel(Frame):
         self.gen_type = ttk.Combobox(
             gen_frame,
             textvariable=self.current_generator,
-            values=["Cluster", "FastCluster", "Barabasi-Albert", "Erdos-Renyi"],
+            values=["Cluster", "FastCluster", "Barabasi-Albert"],
             width=15,
         )
         self.gen_type.grid(row=0, column=1, padx=5, pady=2)
@@ -145,8 +145,6 @@ class ControlsPanel(Frame):
             self._add_fast_cluster_params()
         elif gen_type == "Barabasi-Albert":
             self._add_barabasi_params()
-        elif gen_type == "Erdos-Renyi":
-            self._add_erdos_renyi_params()
 
     def _add_cluster_params(self):
         """Параметры для ClusterGraphGenerator"""
@@ -236,27 +234,6 @@ class ControlsPanel(Frame):
 
         self._add_weight_params(row + 1)
 
-    def _add_erdos_renyi_params(self):
-        """Параметры для ErdosRenyiGenerator"""
-        row = 0
-
-        Label(self.dynamic_frame, text="Edge probability:", bg="#2c3e50", fg="white").grid(
-            row=row, column=0, sticky=W, padx=5, pady=2
-        )
-        self.er_p = DoubleVar(value=0.05)
-        Scale(
-            self.dynamic_frame,
-            from_=0.01,
-            to=0.2,
-            resolution=0.005,
-            variable=self.er_p,
-            orient=HORIZONTAL,
-            bg="#2c3e50",
-            length=150,
-        ).grid(row=row, column=1, padx=5, pady=2)
-
-        self._add_weight_params(row + 1)
-
     def _add_weight_params(self, row):
         """Общие параметры весов"""
         Label(self.dynamic_frame, text="Vertex weight:", bg="#2c3e50", fg="white").grid(
@@ -319,8 +296,6 @@ class ControlsPanel(Frame):
             )
         elif gen_type == "Barabasi-Albert":
             base_params.update({"m0": int(self.ba_m0.get()), "m": int(self.ba_m.get())})
-        elif gen_type == "Erdos-Renyi":
-            base_params.update({"p": self.er_p.get()})
 
         return base_params
 

@@ -1,16 +1,10 @@
 """
 Многоуровневое разбиение графа (Multilevel Partitioning)
-
-Трёхэтапный алгоритм:
-1. Coarsening (стягивание) - уменьшение графа путём объединения вершин
-2. Initial Partitioning - разбиение на самом грубом уровне
-3. Uncoarsening (проекция) + Refinement - обратная проекция с локальным улучшением
+Эффективная реализация с локальным KL только на границе
 """
 
 import random
-import time
-from typing import List, Tuple, Dict, Optional, Any
-from dataclasses import dataclass, field
+from typing import List, Tuple, Dict, Set, Optional
 from collections import defaultdict
 
 import sys
@@ -20,349 +14,288 @@ sys.path.append(str(Path(__file__).parent.parent))
 
 from core.graph import Graph
 from core.partition import Partition
-from core.coarse_graph import CoarseGraph
-from .base_partitioner import PartitionerWithStats, PerformanceMetrics
-from .kernighan_lin import KernighanLin, FastKernighanLin
+from .base_partitioner import PartitionerWithStats
 
 
-@dataclass
 class CoarseningLevel:
-    """Уровень стягивания"""
-
-    level: int
-    graph: Graph
-    coarse_graph: CoarseGraph
-    vertex_map: Dict[int, int]  # исходная -> грубая
-    reverse_map: Dict[int, List[int]]  # грубая -> [исходные]
-    compression_ratio: float = 1.0
-
+    def __init__(self, graph: Graph, coarse_graph: Graph, node_map: List[int], reverse_map: Dict[int, List[int]], compression_ratio: float):
+        self.graph = graph
+        self.coarse_graph = coarse_graph
+        self.node_map = node_map
+        self.reverse_map = reverse_map
+        self.compression_ratio = compression_ratio
 
 class MultilevelPartitioner(PartitionerWithStats):
     """
-    Многоуровневый алгоритм разбиения графа
-
-    Этапы:
-    1. Coarsening: многократное стягивание графа до < 100 вершин
-    2. Initial partitioning: разбиение грубого графа (KL algorithm)
-    3. Uncoarsening: обратная проекция с улучшением на каждом уровне
+    Многоуровневое разбиение: стягивание -> разбиение -> проекция + локальный KL.
+    Локальный KL работает только с вершинами, которые могут улучшить разрез.
     """
 
-    def __init__(
-        self,
-        min_coarse_vertices: int = 50,
-        max_levels: int = 10,
-        coarsening_ratio: float = 0.5,
-        refinement_passes: int = 3,
-        seed: int = 42,
-    ):
-        """
-        Args:
-            min_coarse_vertices: минимальное количество вершин в грубом графе
-            max_levels: максимальное количество уровней стягивания
-            coarsening_ratio: целевое соотношение размеров соседних уровней
-            refinement_passes: количество проходов улучшения на каждом уровне
-            seed: seed для воспроизводимости
-        """
+    def __init__(self, coarsen_to: int = 50, max_passes: int = 10, seed: int = 42):
         super().__init__(name="Multilevel")
-        self.min_coarse_vertices = min_coarse_vertices
-        self.max_levels = max_levels
-        self.coarsening_ratio = coarsening_ratio
-        self.refinement_passes = refinement_passes
+        self.coarsen_to = coarsen_to
+        self.max_passes = max_passes
         self.seed = seed
-
         random.seed(seed)
-
-        # История уровней для визуализации
-        self.levels: List[CoarseningLevel] = []
+        self.levels = []
 
     def _partition_impl(self, graph: Graph, balance_ratio: float = 0.5) -> Partition:
-        """
-        Многоуровневое разбиение графа
-        """
-        # 1. Coarsening - стягивание графа
-        self._reset_stats()
-        with self._stage("coarsening"):
-            self._coarsen(graph)
+        print(f"\n  Multilevel partitioning (coarsen to {self.coarsen_to})")
 
-        if not self.levels:
-            # Если стягивание не удалось, используем KL на исходном графе
-            with self._stage("initial_partition"):
-                kl = FastKernighanLin(seed=self.seed)
-                partition, _ = kl.partition(graph, balance_ratio)
-            return partition
-
-        # 2. Initial partitioning - разбиение грубого графа
-        with self._stage("initial_partition"):
-            partition = self._initial_partition(balance_ratio)
-
-        # 3. Uncoarsening + refinement
-        with self._stage("uncoarsening"):
-            partition = self._uncoarsen_and_refine(partition, balance_ratio)
-
-        return partition
-
-    def _coarsen(self, graph: Graph) -> None:
-        """
-        Этап стягивания графа
-        """
-        self.levels = []
+        # 1. Coarsening
         current = graph
-        level_num = 0
-
-        print(f"\n  📉 Coarsening phase:")
-        print(f"     Level 0: {current.num_vertices} vertices, {current.num_edges} edges")
-
-        for level_num in range(1, self.max_levels + 1):
-            if current.num_vertices <= self.min_coarse_vertices:
-                print(
-                    f"     ✓ Stopped: reached minimum vertices ({current.num_vertices} <= {self.min_coarse_vertices})"
-                )
-                break
-
-            # Находим паросочетание для стягивания
-            matching = self._find_matching(current)
-
+        self.levels = []
+        while current.num_vertices > self.coarsen_to:
+            matching = self._heavy_edge_matching(current)
             if not matching:
-                print(f"     ✗ No matching found at level {level_num}")
                 break
+            coarse, node_map, reverse_map = self._coarsen(current, matching)
+            compression = coarse.num_vertices / current.num_vertices
+            self.levels.append(CoarseningLevel(current, coarse, node_map, reverse_map, compression))
+            current = coarse
+            print(f"    Coarsened: {current.num_vertices} vertices")
 
-            # Стягиваем граф
-            coarse_graph = CoarseGraph.from_matching(current, matching)
-            compression = coarse_graph.num_vertices / current.num_vertices
-
-            # Сохраняем уровень (сохраняем исходный граф, а не to_graph)
-            level = CoarseningLevel(
-                level=level_num,
-                graph=current,  # Сохраняем исходный граф для этого уровня
-                coarse_graph=coarse_graph,
-                vertex_map={v: cv for v, cv in coarse_graph._original_to_coarse.items()},
-                reverse_map=coarse_graph._coarse_to_original.copy(),
-                compression_ratio=compression,
-            )
-            self.levels.append(level)
-
-            print(f"     Level {level_num}: {coarse_graph.num_vertices} vertices (compression: {compression:.3f})")
-
-            # Создаём граф для следующего уровня - используем to_graph() только здесь
-            current = coarse_graph.to_graph()
-
-            # Если сжатие слишком слабое, останавливаемся
-            if compression > 0.9:
-                print(f"     ✓ Stopped: weak compression ({compression:.3f} > 0.9)")
-                break
-
-        # Запоминаем самый грубый граф (последний current)
-        self.coarsest_graph = current
-
-    def _find_matching(self, graph: Graph) -> List[Tuple[int, int]]:
-        """
-        Нахождение паросочетания для стягивания
-
-        Стратегия: Heavy Edge Matching - предпочитаем рёбра с большим весом
-        """
-        used = set()
-        matching = []
-
-        # Получаем все рёбра и сортируем по весу (убывание)
-        edges = list(graph.edges())
-        edges.sort(key=lambda x: x[2], reverse=True)
-
-        for u, v, w in edges[: min(len(edges), graph.num_vertices * 3)]:
-            if u not in used and v not in used:
-                matching.append((u, v))
-                used.add(u)
-                used.add(v)
-
-        return matching
-
-    def _initial_partition(self, balance_ratio: float) -> Partition:
-        """
-        Разбиение самого грубого графа
-        """
-        coarse_graph = self.coarsest_graph
-        best_partition = None
-        best_cut = float("inf")
-
-        # Пробуем несколько различных начальных разбиений
-        for trial in range(5):
-            # Случайное сбалансированное разбиение
-            partition = self._random_partition(coarse_graph, balance_ratio, trial)
-
-            # Улучшаем KL
-            kl = FastKernighanLin(max_passes=10, seed=self.seed + trial)
-            partition, _ = kl.partition(coarse_graph, balance_ratio)
-
-            cut = partition.cut_weight(coarse_graph)
-
+        # 2. Initial partitioning on coarsest graph (try several seeds)
+        best_part = None
+        best_cut = float('inf')
+        for trial in range(10):
+            part = self._random_partition(current, balance_ratio, trial)
+            # Full KL on coarse graph (small, so acceptable)
+            part = self._full_kl(part, current, balance_ratio, passes=10)
+            cut = part.cut_weight(current)
             if cut < best_cut:
                 best_cut = cut
-                best_partition = partition
+                best_part = part
 
-        print(f"     Initial cut on coarse graph: {best_cut}")
-        self._record_iteration(best_cut)
+        partition = best_part
 
-        return best_partition
+        # 3. Uncoarsening with local boundary KL
+        for level in reversed(self.levels):
+            # Project partition to finer graph
+            partition = self._project(partition, level.reverse_map, level.node_map)
+            partition.update_weights(level.graph)
 
-    def _random_partition(self, graph: Graph, balance_ratio: float, seed: int) -> Partition:
-        """Создание случайного сбалансированного разбиения"""
-        random.seed(seed)
-        n = graph.num_vertices
-        partition = Partition(n)
+            # Local KL: only boundary vertices and their neighbours
+            partition = self._local_kl(partition, level.graph, balance_ratio, passes=self.max_passes)
 
-        target_size = int(n * balance_ratio)
-
-        # Создаём перемешанный список вершин
-        vertices = list(range(n))
-        random.shuffle(vertices)
-
-        # Назначаем первые target_size вершин в часть 0
-        for i, v in enumerate(vertices):
-            if i < target_size:
-                partition.assign(v, 0)
-            else:
-                partition.assign(v, 1)
-
-        partition.update_weights(graph)
         return partition
 
-    def _uncoarsen_and_refine(self, partition: Partition, balance_ratio: float) -> Partition:
-        """
-        Обратная проекция с улучшением на каждом уровне
-        """
-        current_partition = partition
-        total_levels = len(self.levels)
-
-        for i, level in enumerate(reversed(self.levels)):
-            level_num = total_levels - i
-
-            print(
-                f"     Level {level_num}: projecting from {level.coarse_graph.num_vertices} to {level.graph.num_vertices} vertices"
-            )
-
-            # 1. Проекция разбиения
-            current_partition = level.coarse_graph.expand_partition(current_partition)
-
-            # Обновляем веса частей на основе текущего графа
-            current_partition.update_weights(level.graph)
-
-            # 2. Улучшаем разбиение на текущем уровне
-            for attempt in range(self.refinement_passes):
-                kl = FastKernighanLin(max_passes=5, seed=self.seed + attempt)
-                current_partition, _ = kl.partition(level.graph, balance_ratio)
-
-                cut = current_partition.cut_weight(level.graph)
-                self._record_iteration(cut)
-
-            cut = current_partition.cut_weight(level.graph)
-            print(f"       Cut after refinement: {cut}")
-
-        return current_partition
-
-    def get_coarsening_history(self) -> List[Dict[str, Any]]:
-        """
-        Получение истории стягивания для визуализации
-
-        Returns:
-            Список словарей с информацией о каждом уровне
-        """
-        history = []
-        for level in self.levels:
-            history.append(
-                {
-                    "level": level.level,
-                    "vertices": level.graph.num_vertices,
-                    "edges": level.graph.num_edges,
-                    "compression_ratio": level.compression_ratio,
-                    "graph": level.graph,
-                    "coarse_graph": level.coarse_graph,
-                    "reverse_map": level.reverse_map,
-                }
-            )
-        return history
-
-    def print_levels(self) -> None:
-        """Вывод информации об уровнях стягивания"""
-        print("\n" + "=" * 50)
-        print("COARSENING LEVELS")
-        print("=" * 50)
-        print(f"{'Level':<6} {'Vertices':<10} {'Edges':<10} {'Compression':<12}")
-        print("-" * 50)
-
-        for level in self.levels:
-            print(
-                f"{level.level:<6} {level.graph.num_vertices:<10} {level.graph.num_edges:<10} {level.compression_ratio:<12.4f}"
-            )
-
-        if self.levels:
-            final = self.levels[-1]
-            print(
-                f"\nFinal compression: {final.coarse_graph.num_vertices} / {self.levels[0].graph.num_vertices} = {final.compression_ratio:.4f}"
-            )
-        print("=" * 50)
-
-
-class AdaptiveMultilevelPartitioner(MultilevelPartitioner):
-    """
-    Адаптивный многоуровневый алгоритм
-
-    Автоматически подбирает параметры в зависимости от размера графа
-    """
-
-    def __init__(self, total_vertices: int = 0, seed: int = 42):
-        """
-        Args:
-            total_vertices: ожидаемое количество вершин (для подбора параметров)
-            seed: seed для воспроизводимости
-        """
-        # Адаптивный подбор параметров
-        if total_vertices > 0:
-            min_coarse = max(20, total_vertices // 100)
-            max_levels = max(3, min(10, int(total_vertices**0.3)))
-            refinement = max(1, min(5, total_vertices // 1000))
-        else:
-            min_coarse = 50
-            max_levels = 10
-            refinement = 3
-
-        super().__init__(
-            min_coarse_vertices=min_coarse,
-            max_levels=max_levels,
-            coarsening_ratio=0.5,
-            refinement_passes=refinement,
-            seed=seed,
-        )
-        self.name = "AdaptiveMultilevel"
-
-
-class FastMultilevelPartitioner(MultilevelPartitioner):
-    """
-    Быстрый многоуровневый алгоритм для больших графов
-
-    Использует упрощённое стягивание и меньше проходов улучшения
-    """
-
-    def __init__(self, seed: int = 42):
-        super().__init__(min_coarse_vertices=100, max_levels=8, coarsening_ratio=0.6, refinement_passes=1, seed=seed)
-        self.name = "FastMultilevel"
-
-    def _find_matching(self, graph: Graph) -> List[Tuple[int, int]]:
-        """
-        Упрощённый поиск паросочетания (быстрее для больших графов)
-        """
-        used = set()
+    def _heavy_edge_matching(self, graph: Graph) -> List[Tuple[int, int]]:
+        """Heavy‑edge matching (METIS style) – O(E log E) sorting"""
+        used = [False] * graph.num_vertices
         matching = []
+        edges = list(graph.edges())
+        edges.sort(key=lambda x: x[2], reverse=True)
+        for u, v, _ in edges:
+            if not used[u] and not used[v]:
+                matching.append((u, v))
+                used[u] = used[v] = True
+        return matching
 
-        # Простой жадный алгоритм (O(V))
-        for v in range(graph.num_vertices):
-            if v in used:
+    def _coarsen(self, graph: Graph, matching: List[Tuple[int, int]]) -> Tuple[Graph, List[int], Dict[int, List[int]]]:
+        """Contract graph using matching, return coarse graph, node_map (old->new), reverse_map (new->list[old])"""
+        n = graph.num_vertices
+        node_map = [-1] * n
+        next_id = 0
+
+        for u, v in matching:
+            node_map[u] = next_id
+            node_map[v] = next_id
+            next_id += 1
+
+        for i in range(n):
+            if node_map[i] == -1:
+                node_map[i] = next_id
+                next_id += 1
+
+        reverse_map = {new: [] for new in range(next_id)}
+        for old, new in enumerate(node_map):
+            reverse_map[new].append(old)
+
+        coarse = Graph(next_id)
+
+        # Vertex weights: sum of original weights
+        for new, old_list in reverse_map.items():
+            total_w = sum(graph.get_vertex_weight(v) for v in old_list)
+            coarse.set_vertex_weight(new, total_w)
+
+        # Edge weights: sum of parallel edges between supernodes
+        edge_weights = defaultdict(int)
+        for u, v, w in graph.edges():
+            nu, nv = node_map[u], node_map[v]
+            if nu != nv:
+                key = (min(nu, nv), max(nu, nv))
+                edge_weights[key] += w
+
+        for (u, v), w in edge_weights.items():
+            coarse.add_edge(u, v, w)
+
+        return coarse, node_map, reverse_map
+
+    def _random_partition(self, graph: Graph, balance: float, seed: int) -> Partition:
+        """Random balanced partition (by vertex count, not weight)"""
+        random.seed(seed)
+        n = graph.num_vertices
+        part = Partition(n)
+        target = int(n * balance)
+        # Shuffle vertices to avoid bias
+        vertices = list(range(n))
+        random.shuffle(vertices)
+        for i, v in enumerate(vertices):
+            part.assign(v, 0 if i < target else 1)
+        part.update_weights(graph)
+        return part
+
+    def _full_kl(self, partition: Partition, graph: Graph, balance: float, passes: int) -> Partition:
+        """Full KL (used only on the coarsest graph)"""
+        # We'll implement a simple gain-based local search that works on the whole graph
+        # but only for small coarse graphs. This is fine because coarse graph is tiny.
+        n = graph.num_vertices
+        # Copy partition
+        best_part = partition.copy()
+        best_cut = partition.cut_weight(graph)
+        
+        for _ in range(passes):
+            # Compute gains for all vertices
+            gains = []
+            for v in range(n):
+                pv = partition.get_part(v)
+                if pv == -1:
+                    gains.append(0)
+                    continue
+                internal = external = 0
+                for nb, w in graph.get_neighbors(v):
+                    if partition.get_part(nb) == pv:
+                        internal += w
+                    else:
+                        external += w
+                gains.append(external - internal)
+            
+            # Find best swap pair
+            best_delta = 0
+            best_pair = None
+            for i in range(n):
+                if partition.get_part(i) != 0:
+                    continue
+                for j in range(n):
+                    if partition.get_part(j) != 1:
+                        continue
+                    if i == j:
+                        continue
+                    delta = gains[i] + gains[j] - 2 * graph.get_edge_weight(i, j)
+                    if delta > best_delta:
+                        best_delta = delta
+                        best_pair = (i, j)
+            
+            if best_delta <= 0:
+                break
+            
+            i, j = best_pair
+            partition.swap_vertices(i, j, graph)
+        
+        return partition
+
+    def _project(self, part: Partition, reverse_map: Dict[int, List[int]], node_map: List[int]) -> Partition:
+        """Project partition from coarse to fine using reverse map."""
+        fine_n = sum(len(lst) for lst in reverse_map.values())
+        fine = Partition(fine_n)
+        for coarse_v, fine_list in reverse_map.items():
+            coarse_part = part.get_part(coarse_v)
+            if coarse_part != -1:
+                for v in fine_list:
+                    fine.assign(v, coarse_part)
+        return fine
+
+    def _local_kl(self, partition: Partition, graph: Graph, balance: float, passes: int) -> Partition:
+        """
+        Local Kernighan–Lin: only vertices that are on the boundary can move.
+        For efficiency, we maintain a queue of boundary vertices and update gains only for neighbours.
+        """
+        n = graph.num_vertices
+        
+        # Helper to compute gain of a single vertex
+        def gain(v: int) -> int:
+            part_v = partition.get_part(v)
+            if part_v == -1:
+                return 0
+            internal = external = 0
+            for nb, w in graph.get_neighbors(v):
+                if partition.get_part(nb) == part_v:
+                    internal += w
+                else:
+                    external += w
+            return external - internal
+
+        # Initialise gains and boundary flags
+        gains = [gain(v) for v in range(n)]
+        boundary = [False] * n
+        # Find boundary vertices
+        for v in range(n):
+            pv = partition.get_part(v)
+            if pv == -1:
                 continue
-
-            # Ищем любого непомеченного соседа
-            for neighbor in graph.get_neighbors(v):
-                if neighbor not in used:
-                    matching.append((v, neighbor))
-                    used.add(v)
-                    used.add(neighbor)
+            for nb, _ in graph.get_neighbors(v):
+                if partition.get_part(nb) != pv:
+                    boundary[v] = True
                     break
 
-        return matching
+        # KL iterations
+        for _ in range(passes):
+            # Collect boundary vertices with positive gain
+            candidates = [v for v in range(n) if boundary[v] and gains[v] > 0]
+            if not candidates:
+                break
+
+            # Sort by gain descending (largest improvement first)
+            candidates.sort(key=lambda x: gains[x], reverse=True)
+
+            moved = set()
+            for v in candidates:
+                if v in moved:
+                    continue
+                p_old = partition.get_part(v)
+                if p_old == -1:
+                    continue
+                p_new = 1 - p_old
+                # Check balance after moving
+                if p_new == 0:
+                    new0 = partition.size0 + 1
+                    new1 = partition.size1 - 1
+                else:
+                    new0 = partition.size0 - 1
+                    new1 = partition.size1 + 1
+                target = n * balance
+                max_sz = target * (1 + (1 - balance))
+                min_sz = target * balance
+                if new0 < min_sz or new1 < min_sz or new0 > max_sz or new1 > max_sz:
+                    continue
+
+                # Move vertex
+                partition.move_vertex_to(v, p_new, graph)
+                moved.add(v)
+
+                # Update gains for neighbours and possibly v itself
+                for nb, w in graph.get_neighbors(v):
+                    if nb in moved:
+                        continue
+                    old_gain = gains[nb]
+                    # Simple update: recompute gain from scratch (neighbors limited)
+                    gains[nb] = gain(nb)
+                    # Update boundary flag for neighbours
+                    p_nb = partition.get_part(nb)
+                    if p_nb == -1:
+                        continue
+                    is_boundary = False
+                    for nnb, _ in graph.get_neighbors(nb):
+                        if partition.get_part(nnb) != p_nb:
+                            is_boundary = True
+                            break
+                    boundary[nb] = is_boundary
+                # Recompute gain for moved vertex (it's now in new part)
+                gains[v] = gain(v)
+                boundary[v] = True  # after move it could still be boundary
+
+        return partition
+
+    def get_coarsening_history(self):
+        return self.levels

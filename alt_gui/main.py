@@ -6,7 +6,7 @@ from tkinter import Tk, Frame, LEFT, RIGHT, Y, BOTH
 
 from core.graph import Graph
 from algorithms.kernighan_lin import KernighanLin
-from algorithms.multilevel_slow import MultilevelPartitioner
+from algorithms.multilevel_slow import MultilevelPartitioner   # <-- изменён импорт
 from data.generators import (
     ClusterGraphGenerator, 
     FastClusterGenerator,
@@ -67,11 +67,9 @@ class GraphPartitioningGUI:
         self.controls.stages_btn.config(command=self._show_stages)
     
     def _randomize_layout(self):
-        """Случайное расположение вершин"""
         self.canvas.randomize_layout()
     
     def _apply_force_layout(self):
-        """Применить force-directed layout"""
         self.canvas.apply_force_layout()
     
     def _on_generate(self, params):
@@ -136,7 +134,7 @@ class GraphPartitioningGUI:
         
         algo = params['algorithm']
         max_passes = params['max_passes']
-        min_coarse = params['min_coarse']
+        coarsen_to = params['min_coarse']     # параметр min_coarse теперь coarsen_to
         balance = params['balance']
         
         print(f"\n=== Running {algo} algorithm ===")
@@ -150,23 +148,20 @@ class GraphPartitioningGUI:
                     self.levels = []
                     self.last_algorithm_stats = None
                 else:
-                    ml = MultilevelPartitioner(min_coarse_vertices=min_coarse, max_levels=10, seed=42)
+                    # Новый MultilevelPartitioner
+                    ml = MultilevelPartitioner(
+                        coarsen_to=coarsen_to,
+                        max_passes=5,       # можно тоже вынести в параметры
+                        seed=42
+                    )
                     p, m = ml.partition(self.graph, balance)
-                    self.levels = ml.levels if hasattr(ml, 'levels') else []
-                    # Собираем статистику из атрибутов (если есть)
+                    
+                    # Получаем историю стягивания
+                    self.levels = ml.get_coarsening_history()
                     self.last_algorithm_stats = {
                         'coarsening_levels': len(self.levels),
                         'compression_ratio': self.levels[-1].compression_ratio if self.levels else 1.0
                     }
-                    # Пытаемся получить время из метрик, если есть
-                    if hasattr(m, 'extra') and m.extra:
-                        if 'coarsening_time' in m.extra:
-                            self.last_algorithm_stats['coarsening_time'] = m.extra['coarsening_time']
-                        if 'initial_partition_time' in m.extra:
-                            self.last_algorithm_stats['initial_partition_time'] = m.extra['initial_partition_time']
-                        if 'uncoarsening_time' in m.extra:
-                            self.last_algorithm_stats['uncoarsening_time'] = m.extra['uncoarsening_time']
-                    
                     print(f"  Coarsening levels: {len(self.levels)}")
                 
                 self.partition = p

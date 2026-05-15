@@ -57,7 +57,7 @@ class GraphCanvas:
     def _compute_force_layout(self):
         """Force-directed layout для красивого расположения вершин"""
         n = self.graph.num_vertices
-        if n == 0:
+        if n == 0 or n > 100:
             return
         
         # Если нет узлов, создаём случайные позиции
@@ -79,7 +79,7 @@ class GraphCanvas:
                 for j in range(i + 1, n):
                     dx = self.nodes[i][0] - self.nodes[j][0]
                     dy = self.nodes[i][1] - self.nodes[j][1]
-                    dist = max(math.sqrt(dx*dx + dy*dy), 10)
+                    dist = max(math.sqrt(dx*dx + dy*dy), 25)
                     force = self.repulsion / (dist * dist)
                     fx = force * dx / dist
                     fy = force * dy / dist
@@ -92,7 +92,7 @@ class GraphCanvas:
             for u, v, w in self.graph.edges():
                 dx = self.nodes[u][0] - self.nodes[v][0]
                 dy = self.nodes[u][1] - self.nodes[v][1]
-                dist = max(math.sqrt(dx*dx + dy*dy), 1)
+                dist = max(math.sqrt(dx*dx + dy*dy), 5)
                 force = self.attraction * w * dist
                 fx = force * dx / dist
                 fy = force * dy / dist
@@ -116,7 +116,7 @@ class GraphCanvas:
     
     def randomize_layout(self):
         """Случайное расположение вершин"""
-        if not self.graph:
+        if (self.graph == None or self.graph.num_vertices > 100):
             return
         
         n = self.graph.num_vertices
@@ -132,13 +132,15 @@ class GraphCanvas:
     
     def apply_force_layout(self):
         """Применить force-directed layout"""
-        if self.graph:
-            self._compute_force_layout()
-            self.redraw()
+        if (self.graph == None or self.graph.num_vertices > 100):
+            return
+        
+        self._compute_force_layout()
+        self.redraw()
     
     def redraw(self):
         self.canvas.delete("all")
-        if not self.graph:
+        if (self.graph == None or self.graph.num_vertices > 100):
             return
         
         self._draw_edges()
